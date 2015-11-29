@@ -142,7 +142,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Coordinate.cpp" />
+    <ClCompile Include="ElevationData.cpp" />
+    <ClCompile Include="HttpRequester.cpp" />
+    <ClCompile Include="SatelliteImage.cpp" />
     <ClCompile Include="Source.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Coordinate.h" />
+    <ClInclude Include="ElevationData.h" />
+    <ClInclude Include="HttpRequester.h" />
+    <ClInclude Include="SatelliteImage.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
