@@ -1,9 +1,8 @@
 #include "ElevationData.h"
+#include <string>
 
-#include <iostream>
-
-
-ElevationData::ElevationData(short rows, short cols, Coordinate southWest, Coordinate northEast, char* source)
+#include <sstream>
+ElevationData::ElevationData(short rows, short cols, Coordinate southWest, Coordinate northEast, std::string source)
 {
 	this->rows = rows;
 	this->cols = cols;
@@ -12,23 +11,25 @@ ElevationData::ElevationData(short rows, short cols, Coordinate southWest, Coord
 	this->heights = new float*[rows];
 	for (int row = 0; row < rows; row++)
 		this->heights[row] = new float[cols];
+	size_t Position = source.find("elevations");
+	source.erase(0, Position+13);
+	Position = source.find("]");
+	source.erase(Position, source.size() - Position);
+	std::cout << source << std::endl;
+	std::stringstream ss(source);
 
-	char * pch;
-	pch = strtok(str, " ,.-");
-	while (pch != NULL)
-	{
-		pch = strtok(NULL, " ,.-");
-	}
-	return 0;
-
-
-
-	for (int row = 0;  row < rows; row++) {
+	for (int row = 0; row < rows; row++) {
 		for (int col = 0; col < cols; col++) {
-			this->heights[row][col] = 0;
+			std::getline(ss, source, ',');
+			this->heights[row][col] = atof(source.c_str());
 		}
 	}
 
+	for (int row = 0; row < rows; row++) {
+		for (int col = 0; col < cols; col++) {
+			std::cout << this->heights[row][col] << std::endl;
+		}
+	}
 }
 
 
