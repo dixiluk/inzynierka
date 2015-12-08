@@ -71,8 +71,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\Users\lukas\Desktop\inzynierka\Flight simulator map\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\lukas\Desktop\inzynierka\Flight simulator map\library;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\lukas\Desktop\inzynierka\Flight simulator map\include;C:\Program Files %28x86%29\GnuWin32\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\lukas\Desktop\inzynierka\Flight simulator map\library;C:\Program Files %28x86%29\GnuWin32\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -94,7 +94,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>freeglutd.lib;OpenGL32.lib;FreeImage.lib;glew32.lib;glext.lib;glut32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>freeglutd.lib;OpenGL32.lib;FreeImage.lib;glew32.lib;glext.lib;glut32.lib;libpng.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -147,6 +147,7 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Chunk.cpp" />
+    <ClCompile Include="ChunkShader.cpp" />
     <ClCompile Include="Coordinate.cpp" />
     <ClCompile Include="CrashReporter.cpp" />
     <ClCompile Include="DynamicObject.cpp" />
@@ -164,6 +165,7 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Chunk.h" />
+    <ClInclude Include="ChunkShader.h" />
     <ClInclude Include="Coordinate.h" />
     <ClInclude Include="CrashReporter.h" />
     <ClInclude Include="DynamicObject.h" />

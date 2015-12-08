@@ -1,7 +1,7 @@
 #include "Engine.h"
 #include "Camera.h"
 #include "DynamicObject.h"
-
+#include "Chunk.h"
 
 
 Engine* Engine::Instance = nullptr;
@@ -23,10 +23,6 @@ void Engine::Init(int argc, char * argv[])						//inicjacja parametrow OpenGl i 
 	for (int i = 0; i < 255; i++){
 		Instance->keyboard[i]=false;
 	}
-	Instance->gearboxUpKey = 49;
-	Instance->gearboxDownKey = 50;
-	Instance->moveCameraKey = 109;
-
 
 
 	glutInit(&argc, argv);
@@ -110,19 +106,6 @@ void Engine::PassiveMotionFunc(int x, int y){
 
 void Engine::UpdatePass()	//wykonywanie wszystkich obliczen
 {
-	/*if (Engine::Instance->keyboard['8'])
-		Camera::ActiveCamera->position.x += 0.1;
-	if (Engine::Instance->keyboard['2'])
-		Camera::ActiveCamera->position.x -= 0.1;
-	if (Engine::Instance->keyboard['1'])
-		Camera::ActiveCamera->position.y += 0.1;
-	if (Engine::Instance->keyboard['3'])
-		Camera::ActiveCamera->position.y -= 0.1;
-	if (Engine::Instance->keyboard['4'])
-		Camera::ActiveCamera->position.z += 0.1;
-	if (Engine::Instance->keyboard['6'])
-		Camera::ActiveCamera->position.z -= 0.1;*/
-
 	Camera::ActiveCamera->setupCamera();
 
 	for (GraphicalObject* obj : Engine::Instance->activeScene->graphicalObjects){
@@ -135,11 +118,7 @@ void Engine::RenderPass(){	//funkcja wykonania rysowania wszystich elementow
 	glClearColor(0.2, 0.2, 0.2, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	for (GraphicalObject* obj : Engine::Instance->activeScene->graphicalObjects){
-		obj->draw();
-	}
-	for (GraphicalObject* obj : Engine::Instance->activeScene->kulki){
-		obj->draw();
+	Chunk::worldChunk->draw();
 
-	}
+
 }

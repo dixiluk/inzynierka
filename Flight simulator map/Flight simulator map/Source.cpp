@@ -1,16 +1,20 @@
-﻿#include "Environment.h"
-#include "Engine.h"
-#include "Environment.h"
+﻿//#include "Environment.h"
+//#include "Engine.h"
+//#include "Environment.h"
 #include "Camera.h"
 #include <iostream>
 #include "HttpRequester.h"
+#include "Chunk.h"
 #include <Windows.h>
 
 int main(int argc, char * argv[])
 {
 	Engine::Instance = new Engine(Engine::Resolution(1440, 900));
-
 	Engine::Init(argc, argv);
+
+	Chunk::Shader = new ChunkShader();
+
+	Chunk::worldChunk = new Chunk(Coordinate(50, 50), Coordinate(51, 51));
 
 	Scene* scene = new Scene();
 	Engine::Instance->activeScene = (Scene*)scene;
@@ -37,6 +41,6 @@ int main(int argc, char * argv[])
 		std::cout << "Time 1:" << GetTickCount() - i << std::endl;
 		break;
 	}
-
+	
 	return 0;
 }

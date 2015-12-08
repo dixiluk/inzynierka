@@ -26,10 +26,6 @@ public:
 
 	bool keyboard[255];
 
-	short gearboxUpKey;
-	short gearboxDownKey;
-	short moveCameraKey;
-
 	Engine(Resolution resolution);
 	~Engine();
 	static void Init(int argc, char * argv[]);

@@ -1,8 +1,6 @@
 #include "Shader.h"
 #include "CrashReporter.h"
 
-std::list<Shader*> Shader::Shaders;
-
 Shader::Shader(char* vsFileName, char* psFileName)
 {
 	char * path1 = (char*)malloc(2048);
@@ -69,7 +67,6 @@ Shader::Shader(char* vsFileName, char* psFileName)
 	// Use The Program Object Instead Of Fixed Function OpenGL
 	glUseProgram(program);
 
-	Shaders.push_back(this);
 }
 
 Shader::~Shader()
@@ -80,8 +77,4 @@ Shader::~Shader()
 void Shader::onPrepare(void*)
 {
 	glUseProgram(program);
-}
-
-void Shader::onDraw(void*){
-
 }

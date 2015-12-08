@@ -6,6 +6,8 @@
 class Texture
 {
 public:
+	Texture(char* source, GLenum image_format = GL_BGRA,
+		GLint internal_format = GL_RGB, GLint level = 0, GLint border = 0);
 	Texture(const char* filename, GLenum image_format = GL_BGRA,
 		GLint internal_format = GL_RGB, GLint level = 0, GLint border = 0);
 	~Texture();

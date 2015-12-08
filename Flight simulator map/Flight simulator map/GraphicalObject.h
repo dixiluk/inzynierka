@@ -10,7 +10,6 @@ class GraphicalObject
 public:
 	GraphicalObject();
 	~GraphicalObject();
-	bool isColision;
 protected:
 	glm::vec3 position;
 	glm::vec3 rotationAxis;

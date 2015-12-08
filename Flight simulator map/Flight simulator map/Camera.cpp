@@ -57,10 +57,6 @@ void Camera::CameraMotion(GLint x, GLint y)	//funkcja obracanie kamery myszka
 {
 
 
-	if (!Engine::Instance->keyboard[Engine::Instance->moveCameraKey]) return;
-
-
-
 	if ((x == Engine::Instance->resolution.Width / 2 +1 || x == Engine::Instance->resolution.Width / 2 -1 || x == Engine::Instance->resolution.Width / 2) 
 		&& (y == Engine::Instance->resolution.Height / 2 +1 || y == Engine::Instance->resolution.Height / 2 -1 || y == Engine::Instance->resolution.Height / 2)) return;
 	ActiveCamera->pitch += ((GLdouble) x - Engine::Instance->resolution.Width / 2) / 1000;
