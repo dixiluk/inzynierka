@@ -4,6 +4,7 @@
 
 SatelliteImage::SatelliteImage()
 {
+	this->texture = new Texture();
 }
 
 

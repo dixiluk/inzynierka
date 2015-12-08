@@ -6,11 +6,14 @@
 
 class Chunk
 {
+private:Chunk* parent;
+	Chunk* child[4];
+	bool childExist;
 public:
-	Chunk(Coordinate southWest, Coordinate northEast);
+	Chunk(Coordinate southWest, Coordinate northEast, Chunk* parent);
 	~Chunk();
-	static Chunk *worldChunk;
 
+	
 	Coordinate southWest, northEast;
 	short elevationDataAccuracy;
 	short satelliteImageAccuracy;	
@@ -18,5 +21,6 @@ public:
 	SatelliteImage *satelliteImage;
 	static ChunkShader* Shader;
 	void draw();
+	void createChild();
 };
 

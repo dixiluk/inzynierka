@@ -17,8 +17,8 @@ Camera::Camera(glm::vec3 position, glm::vec3 direction, glm::vec3 axis)
 	this->yaw = 0;
 
 	this->setPerspective(45.0,
-		(GLfloat) Engine::Instance->resolution.Width
-		/ Engine::Instance->resolution.Height, 1, 5000);
+		(GLfloat)GraphicalEngine::Instance->resolution.Width
+		/ GraphicalEngine::Instance->resolution.Height, 1, 5000);
 	this->setupCamera();
 }
 
@@ -57,10 +57,10 @@ void Camera::CameraMotion(GLint x, GLint y)	//funkcja obracanie kamery myszka
 {
 
 
-	if ((x == Engine::Instance->resolution.Width / 2 +1 || x == Engine::Instance->resolution.Width / 2 -1 || x == Engine::Instance->resolution.Width / 2) 
-		&& (y == Engine::Instance->resolution.Height / 2 +1 || y == Engine::Instance->resolution.Height / 2 -1 || y == Engine::Instance->resolution.Height / 2)) return;
-	ActiveCamera->pitch += ((GLdouble) x - Engine::Instance->resolution.Width / 2) / 1000;
-	ActiveCamera->yaw += ((GLdouble) y - Engine::Instance->resolution.Height / 2) / 1000;
+	if ((x == GraphicalEngine::Instance->resolution.Width / 2 +1 || x == GraphicalEngine::Instance->resolution.Width / 2 -1 || x == GraphicalEngine::Instance->resolution.Width / 2)
+		&& (y == GraphicalEngine::Instance->resolution.Height / 2 +1 || y == GraphicalEngine::Instance->resolution.Height / 2 -1 || y == GraphicalEngine::Instance->resolution.Height / 2)) return;
+	ActiveCamera->pitch += ((GLdouble) x - GraphicalEngine::Instance->resolution.Width / 2) / 1000;
+	ActiveCamera->yaw += ((GLdouble) y - GraphicalEngine::Instance->resolution.Height / 2) / 1000;
 
 	if (ActiveCamera->pitch > PI2) ActiveCamera->pitch = ActiveCamera->pitch - PI2;
 	if (ActiveCamera->yaw >= PIS2) ActiveCamera->yaw = PIS2;
@@ -70,7 +70,7 @@ void Camera::CameraMotion(GLint x, GLint y)	//funkcja obracanie kamery myszka
 	ActiveCamera->direction.y = -sin(ActiveCamera->yaw);
 	ActiveCamera->direction.z = cos(ActiveCamera->pitch)*cos(ActiveCamera->yaw);
 
-	glutWarpPointer(Engine::Instance->resolution.Width / 2, Engine::Instance->resolution.Height / 2);
+	glutWarpPointer(GraphicalEngine::Instance->resolution.Width / 2, GraphicalEngine::Instance->resolution.Height / 2);
 	ActiveCamera->setupCamera();
 
 }

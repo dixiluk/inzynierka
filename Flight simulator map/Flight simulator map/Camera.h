@@ -1,11 +1,11 @@
 #pragma once
-#include "Engine.h"
+#include "GraphicalEngine.h"
 #include <list>
 //blah
 
 class Camera
 {
-	friend class Engine;
+	friend class GraphicalEngine;
 public:
 	static Camera* ActiveCamera;
 	Camera(glm::vec3 position = glm::vec3(0, 0, 0), glm::vec3 direction = glm::vec3(1, 0, 0), glm::vec3 axis = glm::vec3(0, 1, 0));

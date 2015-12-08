@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
 #include <winsock2.h>
-#include <windows.h>
+
 #pragma comment(lib,"ws2_32.lib")
 #include "ElevationData.h"
 #include "Coordinate.h"
@@ -18,8 +18,14 @@ private:
 public:
 	HttpRequester(std::string server, std::string key);
 	~HttpRequester();
-	
+
 	ElevationData* getElevationData(Coordinate northEast, Coordinate westSouth, short rows, short cols, std::string height);
-	void getSatelliteImage(Coordinate center, int zoom, int sizeX, int sizeY, std::string format, bool metadata);
+	char* getSatelliteImageSource(Coordinate center, int zoom, int sizeX, int sizeY, std::string format, std::string* out_metadata = 0);
+
+private:
+	void receiveHeader();
+	void receiveChunkSource();
+	std::string getSatelliteImageMetadata(Coordinate center, int zoom, int sizeX, int sizeY, std::string format); // zwracam to jak podasz coœ w out_metadata
+
 };
 

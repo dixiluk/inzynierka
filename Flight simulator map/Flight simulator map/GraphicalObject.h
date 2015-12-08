@@ -4,7 +4,7 @@
 
 class GraphicalObject
 {
-	friend class Engine;
+	friend class GraphicalEngine;
 	friend class StructureShader;
 	friend class CarShader;
 public:

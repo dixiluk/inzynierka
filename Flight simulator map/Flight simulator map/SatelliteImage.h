@@ -5,8 +5,9 @@ class SatelliteImage
 {
 	friend class Chunk;
 private:
-	Texture* texture;
+
 public:
+	Texture* texture;
 	SatelliteImage();
 	~SatelliteImage();
 };

@@ -1,9 +1,10 @@
 #pragma once
 #include "Environment.h"
 #include "Scene.h"
+#include "Config.h"
+#include "Chunk.h"
 
-
-class Engine
+class GraphicalEngine
 {
 public:
 	struct Resolution{
@@ -17,17 +18,18 @@ public:
 
 	} resolution;
 
+	Chunk *worldChunk;
 	std::list<Scene*> scenes;
 	Scene* activeScene;
-
+	Config *activeConfig;
 	PFNGLWINDOWPOS2IPROC glWindowPos2i;
 
-	static Engine* Instance;
+	static GraphicalEngine* Instance;
 
 	bool keyboard[255];
 
-	Engine(Resolution resolution);
-	~Engine();
+	GraphicalEngine(Resolution resolution);
+	~GraphicalEngine();
 	static void Init(int argc, char * argv[]);
 	static void DisplayFunc();
 	static void ReshapeFunc(int width, int height);
