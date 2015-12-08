@@ -123,7 +123,7 @@ void HttpRequester::receiveChunkSource()
 	}
 }
 
-char* HttpRequester::getSatelliteImageSource(Coordinate center, int zoom, int sizeX, int sizeY, string format, string* out_metadata)
+SatelliteImage* HttpRequester::getSatelliteImageSource(Coordinate center, int zoom, int sizeX, int sizeY, string format, string* out_metadata)
 {
 	//http://dev.virtualearth.net/REST/v1/Imagery/Map/Aerial/47.619048,-122.35384/5?&mapSize=600,700&format=jpeg&mapMetadata=0&key=AvLyPxYc5C5cPPAwZdsrhI1c4sT9FJo1AUVym7tgs-IvZzo720jrDdn-ZG-0Jrb9
 
@@ -145,8 +145,7 @@ char* HttpRequester::getSatelliteImageSource(Coordinate center, int zoom, int si
 	if (out_metadata != 0) {
 		*out_metadata = getSatelliteImageMetadata(center, zoom, sizeX, sizeY, format);
 	}
-
-	return (char*)source.c_str();
+	return new SatelliteImage((char*)source.c_str());
 }
 
 string HttpRequester::getSatelliteImageMetadata(Coordinate center, int zoom, int sizeX, int sizeY, string format)

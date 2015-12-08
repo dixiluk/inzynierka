@@ -20,7 +20,9 @@ public:
 	ElevationData *elevationData;
 	SatelliteImage *satelliteImage;
 	static ChunkShader* Shader;
+
 	void draw();
 	void createChild();
+	static void loadHttpData();
 };
 

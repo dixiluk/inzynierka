@@ -5,6 +5,7 @@
 #pragma comment(lib,"ws2_32.lib")
 #include "ElevationData.h"
 #include "Coordinate.h"
+#include "SatelliteImage.h"
 
 class HttpRequester
 {
@@ -20,8 +21,7 @@ public:
 	~HttpRequester();
 
 	ElevationData* getElevationData(Coordinate northEast, Coordinate westSouth, short rows, short cols, std::string height);
-	char* getSatelliteImageSource(Coordinate center, int zoom, int sizeX, int sizeY, std::string format, std::string* out_metadata = 0);
-
+	SatelliteImage* getSatelliteImageSource(Coordinate center, int zoom, int sizeX, int sizeY, std::string format, std::string* out_metadata = 0);
 private:
 	void receiveHeader();
 	void receiveChunkSource();

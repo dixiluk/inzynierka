@@ -113,33 +113,10 @@ void GraphicalEngine::UpdatePass()	//wykonywanie wszystkich obliczen
 	}
 }
 
-bool done = true;
-bool mapToLoad = false;
-int index = 49;
-char *source;
-void DownloadThread() {
-	HttpRequester *connection = new HttpRequester("dev.virtualearth.net", "AvLyPxYc5C5cPPAwZdsrhI1c4sT9FJo1AUVym7tgs-IvZzo720jrDdn-ZG-0Jrb9");
-	source = connection->getSatelliteImageSource(Coordinate(index++, -122), 7, 300, 300, "jpeg");
-	Sleep(1000);
-	mapToLoad = true;
-	done = true;
-
-}
 
 void GraphicalEngine::RenderPass() {	//funkcja wykonania rysowania wszystich elementow
 	glClearColor(0.2, 0.2, 0.2, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	if (done) {
-		done = false;
-		if (mapToLoad) {
-			Instance->worldChunk->satelliteImage->texture = new Texture(source);
-			mapToLoad = false;
-		}
-		std::thread thread1(DownloadThread);
-		thread1.detach();
-	}
-
-
 
 	Instance->worldChunk->draw();
 

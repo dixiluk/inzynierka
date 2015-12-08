@@ -7,8 +7,10 @@ class SatelliteImage
 private:
 
 public:
+	char* source;
 	Texture* texture;
 	SatelliteImage();
+	SatelliteImage(char* source);
 	~SatelliteImage();
 };
 

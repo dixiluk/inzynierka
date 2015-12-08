@@ -3,6 +3,7 @@
 #include "Camera.h"
 #include "ChunkShader.h"
 #include "GraphicalEngine.h"
+#include "HttpRequester.h"
 ChunkShader *Chunk::Shader = NULL;
 
 
@@ -80,4 +81,11 @@ void Chunk::draw() {
 		glEnd();
 	}
 
+}
+
+
+void Chunk::loadHttpData() {
+	//HttpRequester * connection = new HttpRequester("", "");
+	//this->satelliteImage = connection->getSatelliteImageSource()
+	return;
 }
