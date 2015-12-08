@@ -1,0 +1,3 @@
+par1=war1
+par2=war2
+par3=577754
