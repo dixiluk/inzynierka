@@ -8,7 +8,7 @@
 #include <Windows.h>
 #include "Config.h"
 #include <string>
-
+#include "SatelliteImageMetadata.h"
 
 int main(int argc, char * argv[])
 {
@@ -19,14 +19,21 @@ int main(int argc, char * argv[])
 		exit(-1);
 	}
 	Config *tmp = new Config("config.txt");
-	std::cout << (tmp->takeConfigInt("par3"));
+	//std::cout << (tmp->takeConfigInt("par3"));
+
+	HttpRequester *t = new HttpRequester("dev.virtualearth.net", "AvLyPxYc5C5cPPAwZdsrhI1c4sT9FJo1AUVym7tgs-IvZzo720jrDdn-ZG-0Jrb9");
+	for (int i = 1; i < 10; i++) {
+		for (int j = 1; j < 10; j++)
+		SatelliteImage *tmpstring = t->getSatelliteImageSource(Coordinate(0, 0), Coordinate((double)(0.5/i), (double)(0.5/j)), 800, 800, "png");
+	}
+//	new SatelliteImageMetadata(tmpstring);
 	
 	GraphicalEngine::Instance = new GraphicalEngine(GraphicalEngine::Resolution(1440, 900));
 	GraphicalEngine::Init(argc, argv);
 
 	Chunk::Shader = new ChunkShader();
 
-	GraphicalEngine::Instance->worldChunk = new Chunk(Coordinate(0, 0), Coordinate(5, 5),NULL);
+	GraphicalEngine::Instance->worldChunk = new Chunk(Coordinate(4, 4), Coordinate(9, 9),NULL);
 
 	Scene* scene = new Scene();
 	GraphicalEngine::Instance->activeScene = (Scene*)scene;
@@ -35,7 +42,6 @@ int main(int argc, char * argv[])
 
 	glutMainLoop();
 
-	HttpRequester *t = new HttpRequester("dev.virtualearth.net", "AvLyPxYc5C5cPPAwZdsrhI1c4sT9FJo1AUVym7tgs-IvZzo720jrDdn-ZG-0Jrb9");
 
 	int x = 0;
 	long int i = 0;

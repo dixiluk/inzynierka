@@ -37,3 +37,8 @@ Coordinate Coordinate::calculateMidle(Coordinate cord1, Coordinate cord2) {
 
 	return Coordinate(smalerLatitude + (biggerLatitude - smalerLatitude) / 2, smalerLongtitude + (biggerLongtitude - smalerLongtitude) / 2);
 }
+
+Coordinate Coordinate::size(Coordinate cord) {
+	if (this->latitude > 0);
+	return Coordinate(1, 1);
+}

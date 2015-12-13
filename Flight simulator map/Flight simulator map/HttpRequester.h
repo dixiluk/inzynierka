@@ -6,6 +6,7 @@
 #include "ElevationData.h"
 #include "Coordinate.h"
 #include "SatelliteImage.h"
+#include "SatelliteImageMetadata.h"
 
 class HttpRequester
 {
@@ -20,12 +21,12 @@ public:
 	HttpRequester(std::string server, std::string key);
 	~HttpRequester();
 
-	ElevationData* getElevationData(Coordinate northEast, Coordinate westSouth, short rows, short cols, std::string height);
-	SatelliteImage* getSatelliteImageSource(Coordinate center, int zoom, int sizeX, int sizeY, std::string format, std::string* out_metadata = 0);
+	ElevationData* getElevationData(Coordinate southWest, Coordinate northEast, short rows, short cols, std::string height);
+	SatelliteImage* getSatelliteImageSource(Coordinate southWest, Coordinate northEast, int sizeX, int sizeY, std::string format);
+	SatelliteImageMetadata* getSatelliteImageMetadata(Coordinate southWest, Coordinate northEast, int sizeX, int sizeY, std::string format); // zwracam to jak podasz coœ w out_metadata
 private:
 	void receiveHeader();
 	void receiveChunkSource();
-	std::string getSatelliteImageMetadata(Coordinate center, int zoom, int sizeX, int sizeY, std::string format); // zwracam to jak podasz coœ w out_metadata
 
 };
 

@@ -85,7 +85,8 @@ void Chunk::draw() {
 
 
 void Chunk::loadHttpData() {
-	//HttpRequester * connection = new HttpRequester("", "");
+	HttpRequester * connection = new HttpRequester("", "");
+
 	//this->satelliteImage = connection->getSatelliteImageSource()
-	return;
+	//return;
 }
