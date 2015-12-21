@@ -7,6 +7,7 @@ using namespace std;
 
 const char ElevationMessage[] = "GET /REST/v1/Elevation/Bounds?bounds=%f,%f,%f,%f&rows=%d&cols=%d&heights=%s&key=%s HTTP/1.1\r\nHost: dev.virtualearth.net\r\nConnection: keep-alive\r\n\r\n";
 const char SateliteMessage[] = "GET /REST/v1/Imagery/Map/Aerial/?mapArea=%f,%f,%f,%f&mapSize=%d,%d&format=%s&mapMetadata=%d&key=%s HTTP/1.1\r\nHost: %s\r\nConnection: keep-alive\r\n\r\n";
+const char SateliteMetadataMessage[] = "GET /REST/v1/Imagery/Map/Aerial/?mapArea=%f,%f,%f,%f&mapSize=%d,%d&format=%s&mapMetadata=%d&pp=%f,%f;22&pp=%f,%f;22&key=%s HTTP/1.1\r\nHost: %s\r\nConnection: keep-alive\r\n\r\n";
 
 HttpRequester::HttpRequester(std::string server, std::string key)
 {
@@ -128,22 +129,25 @@ SatelliteImage* HttpRequester::getSatelliteImageSource(Coordinate southWest, Coo
 	//http://dev.virtualearth.net/REST/v1/Imagery/Map/Aerial/47.619048,-122.35384/5?&mapSize=600,700&format=jpeg&mapMetadata=0&key=AvLyPxYc5C5cPPAwZdsrhI1c4sT9FJo1AUVym7tgs-IvZzo720jrDdn-ZG-0Jrb9
 
 	SatelliteImageMetadata* metaData = this->getSatelliteImageMetadata(southWest, northEast, sizeX, sizeY, format);
-	double accuracy = metaData->northEast.latitude - northEast.latitude;
+//	std::cout << sizeY << " 1  " << (northEast.latitude - southWest.latitude) / (metaData->northEast.latitude - metaData->southWest.latitude) << "  ";
+//	std::cout << sizeX << " 1  " << (northEast.longtitude - southWest.longtitude) / (metaData->northEast.longtitude - metaData->southWest.longtitude) << std::endl;
+	sizeX = metaData->secondMarkerx - metaData->firstMarkerx+1;
+	sizeY = metaData->firstMarkery - metaData->secondMarkery+1;
+	metaData = this->getSatelliteImageMetadata(southWest, northEast, sizeX, sizeY, format);
 
-	sizeY = ceil((northEast.latitude - southWest.latitude) / (metaData->northEast.latitude - metaData->southWest.latitude)*sizeY);
-	sizeY += 1;
-	sizeX = ceil((northEast.longtitude - southWest.longtitude) / (metaData->northEast.longtitude - metaData->southWest.longtitude)*sizeX);
-	sizeX += 1;
-
-	SatelliteImageMetadata* metaData2 = this->getSatelliteImageMetadata(southWest, northEast, sizeX, sizeY, format);
-
-	std::cout << sizeY << "   " << metaData2->northEast.latitude - northEast.latitude << "  ";
-	std::cout << sizeX << "   " << metaData2->northEast.longtitude - northEast.longtitude << std::endl;
-	/*
+	std::cout << sizeY << "   " << (northEast.latitude - southWest.latitude) / (metaData->northEast.latitude - metaData->southWest.latitude) << "  ";
+	std::cout << sizeX << "   " << (northEast.longtitude - southWest.longtitude) / (metaData->northEast.longtitude - metaData->southWest.longtitude) << std::endl;
 	requestBuffer = (char*)malloc(4086);
 
+	source.clear();
+	header.clear();
+
+
+
+
+
 	// lat, long, zoom, sizex, sizey, format, metadata, key
-	//sprintf(requestBuffer, SateliteMessage, center.latitude, center.longtitude, zoom, sizeX, sizeY, format.c_str(), 0, this->key.c_str(), this->server.c_str());
+	sprintf(requestBuffer, SateliteMessage, southWest.latitude, southWest.longtitude, northEast.latitude, northEast.longtitude, sizeX, sizeY, format.c_str(), 0, this->key.c_str(), this->server.c_str());
 
 	if (send(this->connectionSocket, requestBuffer, strlen(requestBuffer), 0) <= 0)
 	{
@@ -154,8 +158,8 @@ SatelliteImage* HttpRequester::getSatelliteImageSource(Coordinate southWest, Coo
 
 	receiveHeader();
 	receiveChunkSource();
-	*/
-	return NULL;//new SatelliteImage((char*)source.c_str());
+	
+	return new SatelliteImage((char*)source.c_str());
 }
 
 SatelliteImageMetadata* HttpRequester::getSatelliteImageMetadata(Coordinate southWest, Coordinate northEast, int sizeX, int sizeY, string format)
@@ -163,9 +167,10 @@ SatelliteImageMetadata* HttpRequester::getSatelliteImageMetadata(Coordinate sout
 	//http://dev.virtualearth.net/REST/v1/Imagery/Map/Aerial/47.619048,-122.35384/5?&mapSize=600,700&format=jpeg&mapMetadata=0&key=AvLyPxYc5C5cPPAwZdsrhI1c4sT9FJo1AUVym7tgs-IvZzo720jrDdn-ZG-0Jrb9
 
 	requestBuffer = (char*)malloc(4086);
-
+	this->header.clear();
+	this->source.clear();
 	// lat, long, lat, long, sizex, sizey, format, metadata, key
-	sprintf(requestBuffer, SateliteMessage, southWest.latitude, southWest.longtitude, northEast.latitude, northEast.longtitude, sizeX, sizeY, format.c_str(), 1, this->key.c_str(), this->server.c_str());
+	sprintf(requestBuffer, SateliteMetadataMessage, southWest.latitude, southWest.longtitude, northEast.latitude, northEast.longtitude, sizeX, sizeY, format.c_str(), 1, southWest.latitude, southWest.longtitude, northEast.latitude, northEast.longtitude, this->key.c_str(), this->server.c_str());
 
 	if (send(this->connectionSocket, requestBuffer, strlen(requestBuffer), 0) <= 0)
 	{
@@ -177,10 +182,6 @@ SatelliteImageMetadata* HttpRequester::getSatelliteImageMetadata(Coordinate sout
 	receiveHeader();
 	receiveChunkSource();
 
-	std::string data = source;
-	this->source.clear();
-	this->header.clear();
-
-	return new SatelliteImageMetadata(data);
+	return new SatelliteImageMetadata(source.c_str());
 }
 

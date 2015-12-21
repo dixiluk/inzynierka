@@ -156,6 +156,7 @@
     <ClCompile Include="GraphicalEngine.cpp" />
     <ClCompile Include="GraphicalObject.cpp" />
     <ClCompile Include="HttpRequester.cpp" />
+    <ClCompile Include="MapLoader.cpp" />
     <ClCompile Include="SatelliteImage.cpp" />
     <ClCompile Include="SatelliteImageMetadata.cpp" />
     <ClCompile Include="Scene.cpp" />
@@ -177,6 +178,7 @@
     <ClInclude Include="Environment.h" />
     <ClInclude Include="GraphicalObject.h" />
     <ClInclude Include="HttpRequester.h" />
+    <ClInclude Include="MapLoader.h" />
     <ClInclude Include="SatelliteImage.h" />
     <ClInclude Include="SatelliteImageMetadata.h" />
     <ClInclude Include="Scene.h" />

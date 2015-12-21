@@ -84,7 +84,11 @@ void GraphicalEngine::KeyboardFunc(unsigned char key, int x, int y)
 void GraphicalEngine::KeyboardUpFunc(unsigned char key, int x, int y)
 {
 	GraphicalEngine::Instance->keyboard[key] = false;
-	GraphicalEngine::Instance->worldChunk->createChild();
+
+	if (key == 'm') {
+		GraphicalEngine::Instance->worldChunk1->test();
+		//GraphicalEngine::Instance->worldChunk2->test();
+	}
 }
 
 void GraphicalEngine::SpecialFunc(int key, int x, int y)
@@ -106,11 +110,21 @@ void GraphicalEngine::PassiveMotionFunc(int x, int y) {
 
 void GraphicalEngine::UpdatePass()	//wykonywanie wszystkich obliczen
 {
+	if(GraphicalEngine::Instance->keyboard['w'])
+		Camera::ActiveCamera->moveForward(0.1);
+
+	if (GraphicalEngine::Instance->keyboard['s'])
+		Camera::ActiveCamera->moveForward(-0.1);
+
 	Camera::ActiveCamera->setupCamera();
 
 	for (GraphicalObject* obj : GraphicalEngine::Instance->activeScene->graphicalObjects) {
 		obj->compute();
 	}
+
+	Instance->worldChunk1->loadChunk();
+	//Instance->worldChunk2->loadChunk();
+
 }
 
 
@@ -118,7 +132,8 @@ void GraphicalEngine::RenderPass() {	//funkcja wykonania rysowania wszystich ele
 	glClearColor(0.2, 0.2, 0.2, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	Instance->worldChunk->draw();
+	Instance->worldChunk1->draw();
+	//Instance->worldChunk2->draw();
 
 
 }

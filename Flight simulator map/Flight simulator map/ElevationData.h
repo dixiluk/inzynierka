@@ -10,6 +10,7 @@ private:
 
 public:
 	float ** heights;
+	Coordinate ** coordinates;
 	ElevationData(short rows,short cols, Coordinate southWest, Coordinate northEast, std::string source);
 	~ElevationData();
 };

@@ -3,20 +3,33 @@
 #include "Camera.h"
 #include "ChunkShader.h"
 #include "GraphicalEngine.h"
-#include "HttpRequester.h"
+#include "MapLoader.h"
 ChunkShader *Chunk::Shader = NULL;
 
+
+Chunk::Vertex::Vertex(glm::vec3 position, glm::vec2 textureCoord) {
+	this->position = position;
+	this->textureCoord = textureCoord;
+}
+
+Chunk::Vertex::Vertex()
+{
+}
 
 Chunk::Chunk(Coordinate southWest, Coordinate northEast, Chunk* parent)
 {
 	this->northEast = northEast;
 	this->southWest = southWest;
-	this->satelliteImage = new SatelliteImage();
 	this->parent = parent;
 	for (int i = 0; i < 4; i++) {
 		this->child[i] = NULL;
 	}
 	this->childExist = false;
+	this->isDownloaded.store(false);
+	this->isLoaded = false;
+	this->elevationCols =32;
+	this->elevationRows = 32;
+	MapLoader::Instance->addLowPriorityTask(this);
 }
 
 
@@ -24,34 +37,90 @@ Chunk::~Chunk()
 {
 }
 
+void Chunk::test()
+{
+	if (this->childExist && this->isChildsLoaded()) {
+		for (int i = 0; i < 4; i++) {
+			this->child[i]->test();
+		}
+	}
+	else {
+		this->createChild();
+	}
+}
+
 
 void Chunk::createChild() {
 	Coordinate tmpCord = Coordinate::calculateMidle(this->southWest, this->northEast);
 	Coordinate tmpCord1 = this->northEast;
-	tmpCord1.latitude -= tmpCord.latitude;
+	tmpCord1.latitude = tmpCord.latitude;
 	Coordinate tmpCord2 = this->northEast;
-	tmpCord2.longtitude -= tmpCord.longtitude;
+	tmpCord2.longtitude = tmpCord.longtitude;
 	Coordinate tmpCord3 = this->southWest;
-	tmpCord3.latitude += tmpCord.latitude;
+	tmpCord3.latitude = tmpCord.latitude;
 	Coordinate tmpCord4 = this->southWest;
-	tmpCord4.longtitude += tmpCord.longtitude;
+	tmpCord4.longtitude = tmpCord.longtitude;
 
 	this->child[0] = new Chunk(this->southWest, tmpCord,this);
-	this->child[1] = new Chunk(tmpCord3, tmpCord2, this);
-	this->child[2] = new Chunk(tmpCord4, tmpCord1, this);
+	this->child[1] = new Chunk(tmpCord4, tmpCord1, this);
+	this->child[2] = new Chunk(tmpCord3, tmpCord2, this);
 	this->child[3] = new Chunk(tmpCord, this->northEast, this);
+
+
 	this->childExist = true;
 
 }
 
+void Chunk::downloadChunk(HttpRequester* httpRequester)
+{
+	this->elevationData = httpRequester->getElevationData(this->southWest, this->northEast, this->elevationRows, this->elevationCols, "sealevel");
+	this->satelliteImage = httpRequester->getSatelliteImageSource(this->southWest, this->northEast, 800, 800, "jpeg");
+
+	this->vertices = new Vertex*[this->elevationRows];
+	for (int row = 0; row < this->elevationRows; row++)
+		this->vertices[row] = new Vertex[this->elevationCols];
+
+	int earthRadius = 10;//6378410;
+		for (int i = 0; i < this->elevationRows; i++)
+			for (int j = 0; j < this->elevationCols; j++) {
+				this->vertices[i][j].position = glm::vec3(
+					(float)(earthRadius /*+ this->elevationData->heights[i][j]*/)*sin(this->elevationData->coordinates[i][j].longtitude)*sin(this->elevationData->coordinates[i][j].latitude),
+					(float)(earthRadius /*+ this->elevationData->heights[i][j]*/)*cos(this->elevationData->coordinates[i][j].longtitude)*sin(this->elevationData->coordinates[i][j].latitude),
+					(float)(earthRadius/* + this->elevationData->heights[i][j]*/)*cos(this->elevationData->coordinates[i][j].latitude));
+			//	std::cout << " long: " << this->elevationData->coordinates[i][j].longtitude << " lat: " << this->elevationData->coordinates[i][j].latitude << std::endl;
+				this->vertices[i][j].textureCoord = glm::vec2((float)j/(this->elevationCols-1),(float)i/ (this->elevationRows-1));
+		}
+
+
+	this->isDownloaded.store(true);
+}
+
+
+void Chunk::loadChunk() {
+	if (this->childExist) {
+		for (int i = 0; i < 4; i++) {
+			this->child[i]->loadChunk();
+		}
+	}
+	else {
+		if (this->isDownloaded.load() && !this->isLoaded) {
+			this->satelliteImage->texture = new Texture(this->satelliteImage->source);
+			this->isLoaded = true;
+		}
+	}
+}
+
+
 
 void Chunk::draw() {
-	if (this->childExist) {
+	if (this->childExist && this->isChildsLoaded()) {
 		for (int i = 0; i < 4; i++) {
 			this->child[i]->draw();
 		}
 	}
 	else {
+		if (!this->isLoaded) return;
+
 		glUseProgram(Shader->program);
 
 		glm::mat4 ModelMatrix;
@@ -63,24 +132,32 @@ void Chunk::draw() {
 			Camera::ActiveCamera->viewMatrix *
 			ModelMatrix; // MVP
 
-						 // Przesy?anie macierza MVP do programu shadera
+						 // Przesy³anie macierza MVP do programu shadera
 
 
 		glUniformMatrix4fv(Shader->mvpLink, 1, GL_FALSE, glm::value_ptr(ModelViewProjMatrix));
 		glEnable(GL_TEXTURE);
 		// Przesy?anie tekstury do programu shadera
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, GraphicalEngine::Instance->worldChunk->satelliteImage->texture->id);
+		glBindTexture(GL_TEXTURE_2D, this->satelliteImage->texture->id);
 		glUniform1i(Shader->textureLink, 0);
 		glColor3f(1, 0, 0);
-		glBegin(GL_QUADS);
-		glTexCoord2f(0, 0);	glVertex3f(this->southWest.latitude, this->southWest.longtitude, 0);
-		glTexCoord2f(0, 1);	glVertex3f(this->southWest.latitude, this->northEast.longtitude, 0);
-		glTexCoord2f(1, 1);	glVertex3f(this->northEast.latitude, this->northEast.longtitude, 0);
-		glTexCoord2f(1, 0);	glVertex3f(this->northEast.latitude, this->southWest.longtitude, 0);
-		glEnd();
-	}
+		glBegin(GL_QUAD_STRIP);
+		bool side = true;
+		
+		for (int i = 1; i < this->elevationRows; i++) {
+			for (int j = 0; j < this->elevationCols; j++) {
+				glTexCoord2f(this->vertices[i][j].textureCoord.x, this->vertices[i][j].textureCoord.y);	glVertex3f(this->vertices[i][j].position.x, this->vertices[i][j].position.y, this->vertices[i][j].position.z);
+				glTexCoord2f(this->vertices[i - 1][j].textureCoord.x, this->vertices[i - 1][j].textureCoord.y);	glVertex3f(this->vertices[i - 1][j].position.x, this->vertices[i - 1][j].position.y, this->vertices[i-1][j].position.z);
+			//	std::cout << this->vertices[i][j].position.x << "  " <<this->vertices[i][j].position.y  << "  " << this->vertices[i][j].position.z << std::endl;
+			//	std::cout << this->vertices[i - 1][j].position.x << "  " << this->vertices[i - 1][j].position.y << "  " << this->vertices[i - 1][j].position.z << std::endl;
 
+			}
+		}
+	//	std::cout << std::endl;
+			glEnd();
+
+	}
 }
 
 
@@ -89,4 +166,13 @@ void Chunk::loadHttpData() {
 
 	//this->satelliteImage = connection->getSatelliteImageSource()
 	//return;
+}
+
+bool Chunk::isChildsLoaded()
+{
+	for (int i = 0; i < 4; i++) {
+		if (!this->child[i]->isLoaded)
+			return false;
+	}
+	return true;
 }

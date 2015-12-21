@@ -31,6 +31,7 @@ public:
 	void setPerspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
 
 	glm::vec4 calculateModelViewProjMatrix(glm::vec4 modelViewMatrix);
+	void moveForward(float power);
 
 private:
 	static void CameraMotion(GLint x, GLint y);

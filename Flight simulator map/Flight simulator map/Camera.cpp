@@ -25,42 +25,15 @@ Camera::Camera(glm::vec3 position, glm::vec3 direction, glm::vec3 axis)
 Camera::~Camera()
 {
 }
-/*
+
 void Camera::CameraMotion(GLint x, GLint y)	//funkcja obracanie kamery myszka
 {
+	
 
-
-	if (!Engine::Instance->keyboard[Engine::Instance->moveCameraKey]) return;
-
-
-
-	if ((x == Engine::Instance->resolution.Width / 2 + 1 || x == Engine::Instance->resolution.Width / 2 - 1 || x == Engine::Instance->resolution.Width / 2)
-		&& (y == Engine::Instance->resolution.Height / 2 + 1 || y == Engine::Instance->resolution.Height / 2 - 1 || y == Engine::Instance->resolution.Height / 2)) return;
-	ActiveCamera->pitch += ((GLdouble) x - Engine::Instance->resolution.Width / 2) / 1000;
-	ActiveCamera->yaw += ((GLdouble) y - Engine::Instance->resolution.Height / 2) / 1000;
-
-	if (ActiveCamera->pitch > PI2) ActiveCamera->pitch = ActiveCamera->pitch - PI2;
-	if (ActiveCamera->yaw >= PIS2) ActiveCamera->yaw = PIS2;
-	if (ActiveCamera->yaw <= -PIS2) ActiveCamera->yaw = -PIS2;
-
-	ActiveCamera->direction.x = -sin(ActiveCamera->pitch)*cos(ActiveCamera->yaw);
-	ActiveCamera->direction.y = -sin(ActiveCamera->yaw);
-	ActiveCamera->direction.z = cos(ActiveCamera->pitch)*cos(ActiveCamera->yaw);
-
-	glutWarpPointer(Engine::Instance->resolution.Width / 2, Engine::Instance->resolution.Height / 2);
-	ActiveCamera->setupCamera();
-
-}
-
-*/
-void Camera::CameraMotion(GLint x, GLint y)	//funkcja obracanie kamery myszka
-{
-
-
-	if ((x == GraphicalEngine::Instance->resolution.Width / 2 +1 || x == GraphicalEngine::Instance->resolution.Width / 2 -1 || x == GraphicalEngine::Instance->resolution.Width / 2)
-		&& (y == GraphicalEngine::Instance->resolution.Height / 2 +1 || y == GraphicalEngine::Instance->resolution.Height / 2 -1 || y == GraphicalEngine::Instance->resolution.Height / 2)) return;
-	ActiveCamera->pitch += ((GLdouble) x - GraphicalEngine::Instance->resolution.Width / 2) / 1000;
-	ActiveCamera->yaw += ((GLdouble) y - GraphicalEngine::Instance->resolution.Height / 2) / 1000;
+	if ((x == GraphicalEngine::Instance->resolution.Width / 2 + 1 || x == GraphicalEngine::Instance->resolution.Width / 2 - 1 || x == GraphicalEngine::Instance->resolution.Width / 2)
+		&& (y == GraphicalEngine::Instance->resolution.Height / 2 + 1 || y == GraphicalEngine::Instance->resolution.Height / 2 - 1 || y == GraphicalEngine::Instance->resolution.Height / 2)) return;
+	ActiveCamera->pitch += ((GLdouble)x - GraphicalEngine::Instance->resolution.Width / 2) / 1000;
+	ActiveCamera->yaw += ((GLdouble)y - GraphicalEngine::Instance->resolution.Height / 2) / 1000;
 
 	if (ActiveCamera->pitch > PI2) ActiveCamera->pitch = ActiveCamera->pitch - PI2;
 	if (ActiveCamera->yaw >= PIS2) ActiveCamera->yaw = PIS2;
@@ -72,8 +45,8 @@ void Camera::CameraMotion(GLint x, GLint y)	//funkcja obracanie kamery myszka
 
 	glutWarpPointer(GraphicalEngine::Instance->resolution.Width / 2, GraphicalEngine::Instance->resolution.Height / 2);
 	ActiveCamera->setupCamera();
-
 }
+
 
 void Camera::setActive()
 {
@@ -136,14 +109,21 @@ void Camera::setPerspective(GLdouble fovY, GLdouble aspectRatio, GLdouble zNear,
 
 void Camera::setupCamera()  //stworzenie macierzy widoku
 {
-	this->viewMatrix = glm::lookAt(this->position + (this->direction*10.0f),
-		this->position,
+	this->viewMatrix = glm::lookAt(this->position,
+		glm::vec3(this->position.x + this->direction.x,
+			this->position.y + this->direction.y,
+			this->position.z + this->direction.z),
 		this->axis);
 	this->viewProjectionMatrix = this->projectionMatrix * this->viewMatrix;
 }
 
 glm::vec4 Camera::calculateModelViewProjMatrix(glm::vec4 modelViewMatrix){
 	return viewProjectionMatrix * modelViewMatrix;
+}
+
+
+void Camera::moveForward(float power) {
+	this->position += this->direction*power;
 }
 
 

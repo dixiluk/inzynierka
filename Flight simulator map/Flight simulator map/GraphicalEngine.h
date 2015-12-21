@@ -18,7 +18,8 @@ public:
 
 	} resolution;
 
-	Chunk *worldChunk;
+	Chunk *worldChunk1;
+	Chunk *worldChunk2;
 	std::list<Scene*> scenes;
 	Scene* activeScene;
 	Config *activeConfig;

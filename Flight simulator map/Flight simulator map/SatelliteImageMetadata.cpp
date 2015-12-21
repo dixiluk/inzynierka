@@ -8,6 +8,7 @@ SatelliteImageMetadata::SatelliteImageMetadata(std::string data)
 	this->data = data;
 	this->readPositions();
 	this->readImageSize();
+	this->readTwoMarkers();
 }
 
 
@@ -47,4 +48,37 @@ void SatelliteImageMetadata::readImageSize() {
 	source.erase(Position, source.size() - Position);
 	this->imageWidth = atoi(source.c_str());
 
+}
+
+void SatelliteImageMetadata::readTwoMarkers()
+{
+	std::string source = this->data; 
+	std::string sourceCopy = this->data;
+	size_t Position = source.find("anchor");
+	source.erase(0, Position + 14);
+	sourceCopy = source;
+	Position = source.find("\"");
+	source.erase(Position, source.size() - Position);
+	this->firstMarkerx = atoi(source.c_str());
+	source = sourceCopy;
+	Position = source.find("y");
+	source.erase(0, Position + 4);
+	Position = source.find("\"");
+	source.erase(Position, source.size() - Position);
+	this->firstMarkery = atoi(source.c_str());
+
+
+	source = sourceCopy;
+	Position = source.find("anchor");
+	source.erase(0, Position + 14);
+	sourceCopy = source;
+	Position = source.find("\"");
+	source.erase(Position, source.size() - Position);
+	this->secondMarkerx = atoi(source.c_str());
+	source = sourceCopy;
+	Position = source.find("y");
+	source.erase(0, Position + 4);
+	Position = source.find("\"");
+	source.erase(Position, source.size() - Position);
+	this->secondMarkery = atoi(source.c_str());
 }
