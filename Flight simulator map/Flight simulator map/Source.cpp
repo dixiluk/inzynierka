@@ -22,7 +22,7 @@ int main(int argc, char * argv[])
 		exit(-1);
 	}
 	
-	MapLoader::Instance->createThread(100);
+	MapLoader::Instance->createThread(200);
 	Config *tmp = new Config("config.txt");
 
 
@@ -39,9 +39,9 @@ int main(int argc, char * argv[])
 
 	Chunk::Shader = new ChunkShader();
 
-	//GraphicalEngine::Instance->worldChunk2 = new Chunk(Coordinate(-75, -180), Coordinate(75, 0),NULL);
-	GraphicalEngine::Instance->worldChunk1 = new Chunk(Coordinate(-75, 0), Coordinate(75, 180), NULL);
-	//GraphicalEngine::Instance->worldChunk1 = new Chunk(Coordinate(37, 135), Coordinate(75, 180), NULL);
+	GraphicalEngine::Instance->worldChunk1 = new Chunk(Coordinate(-80, 0), Coordinate(80, 180), NULL);
+	//GraphicalEngine::Instance->worldChunk2 = new Chunk(Coordinate(-80, -180), Coordinate(80, 0),NULL);
+	//GraphicalEngine::Instance->worldChunk1 = new Chunk(Coordinate(-50, 0), Coordinate(-40, 11.25), NULL);
 	//GraphicalEngine::Instance->worldChunk1 = new Chunk(Coordinate(10, 133), Coordinate(60, 178), NULL);
 
 	Scene* scene = new Scene();

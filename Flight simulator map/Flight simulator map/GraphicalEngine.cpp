@@ -87,7 +87,7 @@ void GraphicalEngine::KeyboardUpFunc(unsigned char key, int x, int y)
 
 	if (key == 'm') {
 		GraphicalEngine::Instance->worldChunk1->test();
-		//GraphicalEngine::Instance->worldChunk2->test();
+	//	GraphicalEngine::Instance->worldChunk2->test();
 	}
 }
 
@@ -123,7 +123,7 @@ void GraphicalEngine::UpdatePass()	//wykonywanie wszystkich obliczen
 	}
 
 	Instance->worldChunk1->loadChunk();
-	//Instance->worldChunk2->loadChunk();
+//	Instance->worldChunk2->loadChunk();
 
 }
 
@@ -133,7 +133,7 @@ void GraphicalEngine::RenderPass() {	//funkcja wykonania rysowania wszystich ele
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	Instance->worldChunk1->draw();
-	//Instance->worldChunk2->draw();
+//	Instance->worldChunk2->draw();
 
 
 }

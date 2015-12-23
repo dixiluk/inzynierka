@@ -4,17 +4,11 @@
 #include "ChunkShader.h"
 #include "GraphicalEngine.h"
 #include "MapLoader.h"
+
 ChunkShader *Chunk::Shader = NULL;
 
 
-Chunk::Vertex::Vertex(glm::vec3 position, glm::vec2 textureCoord) {
-	this->position = position;
-	this->textureCoord = textureCoord;
-}
 
-Chunk::Vertex::Vertex()
-{
-}
 
 Chunk::Chunk(Coordinate southWest, Coordinate northEast, Chunk* parent)
 {
@@ -74,7 +68,7 @@ void Chunk::createChild() {
 void Chunk::downloadChunk(HttpRequester* httpRequester)
 {
 	this->elevationData = httpRequester->getElevationData(this->southWest, this->northEast, this->elevationRows, this->elevationCols, "sealevel");
-	this->satelliteImage = httpRequester->getSatelliteImageSource(this->southWest, this->northEast, 800, 800, "jpeg");
+	
 
 	this->vertices = new Vertex*[this->elevationRows];
 	for (int row = 0; row < this->elevationRows; row++)
@@ -87,16 +81,28 @@ void Chunk::downloadChunk(HttpRequester* httpRequester)
 					(float)(earthRadius /*+ this->elevationData->heights[i][j]*/)*sin(this->elevationData->coordinates[i][j].longtitude)*sin(this->elevationData->coordinates[i][j].latitude),
 					(float)(earthRadius /*+ this->elevationData->heights[i][j]*/)*cos(this->elevationData->coordinates[i][j].longtitude)*sin(this->elevationData->coordinates[i][j].latitude),
 					(float)(earthRadius/* + this->elevationData->heights[i][j]*/)*cos(this->elevationData->coordinates[i][j].latitude));
-			//	std::cout << " long: " << this->elevationData->coordinates[i][j].longtitude << " lat: " << this->elevationData->coordinates[i][j].latitude << std::endl;
-				this->vertices[i][j].textureCoord = glm::vec2((float)j/(this->elevationCols-1),(float)i/ (this->elevationRows-1));
 		}
 
 
+	this->satelliteImage = httpRequester->getSatelliteImageSource(this);
+
+	float positionY;
+	for (int i = 0; i < this->elevationRows; i++) {
+		if (i == this->elevationRows - 1)
+			positionY = 1;
+		else
+			positionY = (float)(1-(float)(this->satelliteImage->metadata->markers[1][i]- this->satelliteImage->metadata->markers[1][this->elevationRows-1])/(float)this->satelliteImage->metadata->sizeY());
+		for (int j = 0; j < this->elevationCols; j++) {
+			this->vertices[i][j].textureCoord = glm::vec2((float)j / (this->elevationCols - 1), positionY);
+		}
+	}
 	this->isDownloaded.store(true);
 }
 
 
 void Chunk::loadChunk() {
+
+	std::atomic_thread_fence(std::memory_order_acquire);
 	if (this->childExist) {
 		for (int i = 0; i < 4; i++) {
 			this->child[i]->loadChunk();
@@ -104,7 +110,7 @@ void Chunk::loadChunk() {
 	}
 	else {
 		if (this->isDownloaded.load() && !this->isLoaded) {
-			this->satelliteImage->texture = new Texture(this->satelliteImage->source);
+			this->satelliteImage->texture = new Texture(this->satelliteImage->source,this);
 			this->isLoaded = true;
 		}
 	}

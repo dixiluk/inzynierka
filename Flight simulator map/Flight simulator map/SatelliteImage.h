@@ -1,5 +1,6 @@
 #pragma once
 #include "Texture.h"
+#include "SatelliteImageMetadata.h"
 
 class SatelliteImage
 {
@@ -8,9 +9,11 @@ private:
 
 public:
 	char* source;
+	char* header;
 	Texture* texture;
+	SatelliteImageMetadata *metadata;
 	SatelliteImage();
-	SatelliteImage(char* source);
+	SatelliteImage(char* source, char* header, SatelliteImageMetadata* metadata);
 	~SatelliteImage();
 };
 

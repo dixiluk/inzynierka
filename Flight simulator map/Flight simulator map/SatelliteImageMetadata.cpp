@@ -1,5 +1,6 @@
 #include "SatelliteImageMetadata.h"
 #include <sstream>
+#include <list>
 
 
 
@@ -8,7 +9,7 @@ SatelliteImageMetadata::SatelliteImageMetadata(std::string data)
 	this->data = data;
 	this->readPositions();
 	this->readImageSize();
-	this->readTwoMarkers();
+	this->readMarkers();
 }
 
 
@@ -50,35 +51,54 @@ void SatelliteImageMetadata::readImageSize() {
 
 }
 
-void SatelliteImageMetadata::readTwoMarkers()
+void SatelliteImageMetadata::readMarkers()
 {
 	std::string source = this->data; 
 	std::string sourceCopy = this->data;
-	size_t Position = source.find("anchor");
-	source.erase(0, Position + 14);
-	sourceCopy = source;
-	Position = source.find("\"");
-	source.erase(Position, source.size() - Position);
-	this->firstMarkerx = atoi(source.c_str());
-	source = sourceCopy;
-	Position = source.find("y");
-	source.erase(0, Position + 4);
-	Position = source.find("\"");
-	source.erase(Position, source.size() - Position);
-	this->firstMarkery = atoi(source.c_str());
+	std::list<short> list1;
+	std::list<short> list2;
+
+	while(true) {
+		source = sourceCopy;
+		size_t Position = source.find("anchor");
+		if (Position >= source.size())
+			break;
+		source.erase(0, Position + 14);
+		sourceCopy = source;
+		Position = source.find("\"");
+		source.erase(Position, source.size() - Position);
+		list1.push_back(atoi(source.c_str()));
+		source = sourceCopy;
+		Position = source.find("y");
+		source.erase(0, Position + 4);
+		Position = source.find("\"");
+		source.erase(Position, source.size() - Position);
+		list2.push_back(atoi(source.c_str()));
+	}
+
+	this->markers[0] = new short[list1.size()];
+	this->markers[1] = new short[list1.size()];
+	this->markersCount = list1.size();
+
+	std::list<short>::iterator it = list1.begin();
+	std::list<short>::iterator it2 = list2.begin();
+	for (int i = 0; i < list1.size(); i++) {
+		markers[0][i] = *it;
+		markers[1][i] = *it2;
+		it++;
+		it2++;
+	}
 
 
-	source = sourceCopy;
-	Position = source.find("anchor");
-	source.erase(0, Position + 14);
-	sourceCopy = source;
-	Position = source.find("\"");
-	source.erase(Position, source.size() - Position);
-	this->secondMarkerx = atoi(source.c_str());
-	source = sourceCopy;
-	Position = source.find("y");
-	source.erase(0, Position + 4);
-	Position = source.find("\"");
-	source.erase(Position, source.size() - Position);
-	this->secondMarkery = atoi(source.c_str());
+}
+
+short SatelliteImageMetadata::sizeX()
+{
+	std::cout << this->markers[0][this->markersCount - 1] << std::endl;
+	return (this->markers[0][this->markersCount-1]-this->markers[0][0])+1;
+}
+
+short SatelliteImageMetadata::sizeY()
+{
+	return this->markers[1][0] - this->markers[1][this->markersCount -1]+1;
 }

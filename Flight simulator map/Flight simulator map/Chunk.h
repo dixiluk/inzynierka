@@ -5,16 +5,10 @@
 #include "ChunkShader.h"
 #include <atomic>
 #include "HttpRequester.h"
+#include "Vertex.h"
 
 class Chunk
 {
-	struct Vertex {
-		glm::vec3 position;
-		glm::vec2 textureCoord;
-		Vertex(glm::vec3 position, glm::vec2 textureCoord);
-		Vertex();
-	};
-
 
 private:Chunk* parent;
 	Vertex **vertices;
@@ -27,7 +21,6 @@ public:
 	~Chunk();
 	void test();
 
-	
 	Coordinate southWest, northEast;
 	short elevationDataAccuracy;
 	short satelliteImageAccuracy;	

@@ -43,7 +43,7 @@ void MapLoader::createThread(int count)
 void MapLoader::ThreadFunc()
 {
 	bool exp;
-	HttpRequester *httpRequester = new HttpRequester("dev.virtualearth.net", "AvLyPxYc5C5cPPAwZdsrhI1c4sT9FJo1AUVym7tgs-IvZzo720jrDdn-ZG-0Jrb9");
+	HttpRequester *httpRequester = new HttpRequester("dev.virtualearth.net", "AmvBSIeUUlRjloCddNtHCJft8mzVk4CVzM7P53PGl7eYptDqJN1yj1aG7typ-8K8");
 
 	while (true) {
 		exp = false;
@@ -55,11 +55,14 @@ void MapLoader::ThreadFunc()
 		Chunk* chunk = NULL;
 		if (Instance->taskList.size()>0) {
 			chunk = (*Instance->taskList.begin());
-			Instance->taskList.pop_front();
-			std::atomic_thread_fence(std::memory_order_release);
+			Instance->taskList.remove(chunk);
+			//Instance->taskList.pop_front();
+			//std::cout << 
+			std::atomic_thread_fence(std::memory_order_release);			
 		}
-		
 		Instance->taskListLocked.store(false);
+
+		//std::atomic_thread_fence(std::memory_order_acquire);
 		if (chunk != NULL)
 		{
 			chunk->downloadChunk(httpRequester);
@@ -67,6 +70,8 @@ void MapLoader::ThreadFunc()
 		else {
 			Sleep(100);
 		}
+		std::atomic_thread_fence(std::memory_order_release);
+		//Sleep(50);
 	}
 }
 

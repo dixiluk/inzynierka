@@ -2,11 +2,10 @@
 
 #include "Environment.h"
 
-
 class Texture
 {
 public:
-	Texture(const char* source);
+	Texture(char* source, void* tmp);
 	Texture();
 	~Texture();
 	GLuint id;

@@ -1,5 +1,7 @@
 #include "Texture.h"
 
+#include "Chunk.h"
+
 fi_handle Texture::LoadAdress;
 
 inline unsigned _stdcall streamReadProc(void *buffer, unsigned size, unsigned count, fi_handle handle) {
@@ -35,8 +37,9 @@ inline long _stdcall streamTellProc(fi_handle handle) {
 	return ((int)Texture::LoadAdress - (int)handle);
 }
 
-Texture::Texture(const char* source)
+Texture::Texture(char* source, void* tmp)
 {
+	Chunk* tmp8 = (Chunk*)tmp;
 	glGenTextures(1, &this->id);
 
 	FREE_IMAGE_FORMAT fif = FIF_JPEG;
@@ -45,16 +48,30 @@ Texture::Texture(const char* source)
 	unsigned int width(0), height(0);
 	GLuint gl_texID;
 
-	FreeImageIO io;
+		FreeImageIO io;
 
-	io.read_proc = streamReadProc;
-	io.write_proc = streamWriteProc;
-	io.tell_proc = streamTellProc;
-	io.seek_proc = streamSeekProc;
+		io.read_proc = streamReadProc;
+		io.write_proc = streamWriteProc;
+		io.tell_proc = streamTellProc;
+		io.seek_proc = streamSeekProc;
 
-	Texture::LoadAdress = (char*)source;
+		char* cpy = (char*)malloc(*(int*)tmp8->satelliteImage->header);
+		memcpy(cpy, source, *(int*)tmp8->satelliteImage->header);
 
-	dib = FreeImage_LoadFromHandle(FIF_JPEG, &io, (fi_handle)source);
+		Texture::LoadAdress = (char*)cpy;
+
+
+		EXCEPTION_POINTERS * eps = 0;
+		__try {
+
+		dib = FreeImage_LoadFromHandle(FIF_JPEG, &io, (fi_handle)cpy);
+		}
+
+		__except (eps = GetExceptionInformation(), EXCEPTION_EXECUTE_HANDLER) {
+			return;
+
+
+		}
 
 
 	if (!dib)
@@ -75,6 +92,7 @@ Texture::Texture(const char* source)
 
 
 	FreeImage_Unload(dib);
+	//free((char*)source);
 }
 
 Texture::~Texture()

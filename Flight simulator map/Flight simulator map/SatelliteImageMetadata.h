@@ -10,8 +10,11 @@ public:
 	std::string data;
 	void readPositions();
 	void readImageSize();
-	void readTwoMarkers();
-	short firstMarkerx, firstMarkery, secondMarkerx, secondMarkery;
+	void readMarkers();
+	short sizeX();
+	short sizeY();
+	short *markers[2];
+	short markersCount;
 	Coordinate southWest, northEast;
 	short imageHeight, imageWidth;
 	
