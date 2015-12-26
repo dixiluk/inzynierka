@@ -2,14 +2,17 @@
 #include <string>
 
 #include <sstream>
+#include "Config.h"
 
 
 #define PI2  6.28318531
+short ElevationData::rows;
+short ElevationData::cols;
 
-ElevationData::ElevationData(short rows, short cols, Coordinate southWest, Coordinate northEast, std::string source)
+ElevationData::ElevationData(Coordinate southWest, Coordinate northEast, std::string source, int sourceSize)
 {
-	this->rows = rows;
-	this->cols = cols;
+	this->source = source;
+	this->sourceSize = sourceSize;
 	this->southWest = southWest;
 	this->northEast = northEast;
 	this->heights = new float*[rows];
@@ -48,3 +51,46 @@ ElevationData::~ElevationData()
 {
 }
 
+void ElevationData::saveOnDrive(std::string path)
+{
+	FILE* file = fopen(path.c_str(), "wb");
+	if (file == NULL)
+		std::cout << "error" << std::endl;
+	fwrite(this->source.c_str(), 1, this->sourceSize, file);
+	fclose(file);
+}
+
+ElevationData* ElevationData::readFromDrive(Coordinate southWest, Coordinate northEast,std::string path)
+{
+	int lSize;
+	char * buffer;
+	size_t result;
+
+	FILE* file = fopen(path.c_str(), "rb");
+
+	if (file == NULL) {
+		std::cout << "error" << std::endl;
+		return NULL;
+	}
+
+	fseek(file, 0, SEEK_END);
+	lSize = ftell(file);
+	rewind(file);
+
+
+	buffer = (char*)malloc(sizeof(char)*lSize);
+	if (buffer == NULL) {
+		std::cout << "error" << std::endl;
+		return NULL;
+	}
+
+	result = fread(buffer, 1, lSize, file);
+	if (result != lSize) {
+		std::cout << "error" << std::endl;
+		return NULL;
+	}
+
+
+	fclose(file);
+	return new ElevationData(southWest,northEast, buffer, lSize);
+}

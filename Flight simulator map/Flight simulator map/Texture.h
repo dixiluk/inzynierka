@@ -5,7 +5,7 @@
 class Texture
 {
 public:
-	Texture(char* source, void* tmp);
+	Texture(char* source);
 	Texture();
 	~Texture();
 	GLuint id;

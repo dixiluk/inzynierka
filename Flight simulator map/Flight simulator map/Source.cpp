@@ -22,10 +22,15 @@ int main(int argc, char * argv[])
 		exit(-1);
 	}
 	
-	MapLoader::Instance->createThread(200);
 	Config *tmp = new Config("config.txt");
 
+	ElevationData::rows = Config::Instance->takeConfigInt("elevationRows");
+	ElevationData::cols = Config::Instance->takeConfigInt("elevationCols");
+	HttpRequester::prefImageSizeX = Config::Instance->takeConfigInt("prefImageSizeX");
+	HttpRequester::prefImageSizeY = Config::Instance->takeConfigInt("prefImageSizeY");
+	Chunk::saveDataOnDrive = Config::Instance->takeConfigBool("saveDataOnDrive");
 
+	MapLoader::Instance->createThread(200);
 	//std::cout << (tmp->takeConfigInt("par3"));
 
 	/*for (int i = 1; i < 10; i++) {

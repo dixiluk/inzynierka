@@ -9,11 +9,14 @@ private:
 
 public:
 	char* source;
+	int sourceSize;
 	char* header;
 	Texture* texture;
 	SatelliteImageMetadata *metadata;
 	SatelliteImage();
-	SatelliteImage(char* source, char* header, SatelliteImageMetadata* metadata);
+	SatelliteImage(char* source, int sourceSize , SatelliteImageMetadata* metadata);
+	void saveOnDrive(std::string path);
+	static SatelliteImage *readFromDrive(std::string path, std::string metadataPath);
 	~SatelliteImage();
 };
 

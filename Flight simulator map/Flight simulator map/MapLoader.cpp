@@ -1,5 +1,6 @@
 #include "MapLoader.h"
 #include "HttpRequester.h"
+#include "Config.h"
 
 
 MapLoader* MapLoader::Instance = NULL;
@@ -43,7 +44,7 @@ void MapLoader::createThread(int count)
 void MapLoader::ThreadFunc()
 {
 	bool exp;
-	HttpRequester *httpRequester = new HttpRequester("dev.virtualearth.net", "AmvBSIeUUlRjloCddNtHCJft8mzVk4CVzM7P53PGl7eYptDqJN1yj1aG7typ-8K8");
+	HttpRequester *httpRequester = new HttpRequester(Config::Instance->takeConfigString("dataServer"), Config::Instance->takeConfigString("licenceKey"));
 
 	while (true) {
 		exp = false;

@@ -27,7 +27,7 @@ public:
 	ElevationData *elevationData;
 	SatelliteImage *satelliteImage;
 	static ChunkShader* Shader;
-	short elevationRows, elevationCols;
+	static bool saveDataOnDrive;
 
 	void loadChunk();
 	void downloadChunk(HttpRequester* httpRequester);
@@ -35,5 +35,6 @@ public:
 	void createChild();
 	static void loadHttpData();
 	bool isChildsLoaded();
+	void saveOnDrive(std::string pat);
 };
 

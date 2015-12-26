@@ -4,10 +4,14 @@
 #include <iostream>
 #include <string>
 
+Config *Config::Instance;
+
+
 Config::Config(std::string path)
 {
 	this->path = path;
 	this->loadFile();
+	this->Instance = this;
 }
 
 
@@ -27,7 +31,7 @@ void Config::loadFile() {
 				line2 = line;
 				size_t position = line.find("=");
 				if (position <= 0 || position > line.size()) {
-					std::cout << "blad skladni configa";
+					std::cout << "config error";
 					return;
 				}
 				line2.erase(0, position + 1);
@@ -38,7 +42,7 @@ void Config::loadFile() {
 			plik.close();	}
 	else {
 
-		std::cout << "blad odczytu configa";
+		std::cout << "config error";
 	}
 	return;
 }
@@ -55,6 +59,20 @@ int Config::takeConfigInt(std::string parameterName) {
 		return atoi((char*)this->takeConfigString(parameterName).c_str());
 	}
 	catch (std::string e) {
-		std::cout << "problem z odczytem parametru configu";
+		std::cout << "config error";
+	}
+}
+
+bool Config::takeConfigBool(std::string parameterName)
+{
+	try {
+		if (this->takeConfigString(parameterName) == "false")
+			return false;
+		else
+			return true;
+
+	}
+	catch (std::string e) {
+		std::cout << "config error";
 	}
 }

@@ -7,10 +7,11 @@ private:
 	std::string path;
 
 public: 
-
+	static Config *Instance;
 	Config(std::string path);
 	~Config();
 	void loadFile();
 	std::string takeConfigString(std::string parameterName);
 	int takeConfigInt(std::string parameterName);
+	bool takeConfigBool(std::string parameterName);
 };

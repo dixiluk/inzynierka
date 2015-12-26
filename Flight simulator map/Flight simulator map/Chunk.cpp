@@ -4,9 +4,9 @@
 #include "ChunkShader.h"
 #include "GraphicalEngine.h"
 #include "MapLoader.h"
-
 ChunkShader *Chunk::Shader = NULL;
 
+bool Chunk::saveDataOnDrive;
 
 
 
@@ -21,8 +21,6 @@ Chunk::Chunk(Coordinate southWest, Coordinate northEast, Chunk* parent)
 	this->childExist = false;
 	this->isDownloaded.store(false);
 	this->isLoaded = false;
-	this->elevationCols =32;
-	this->elevationRows = 32;
 	MapLoader::Instance->addLowPriorityTask(this);
 }
 
@@ -67,36 +65,77 @@ void Chunk::createChild() {
 
 void Chunk::downloadChunk(HttpRequester* httpRequester)
 {
-	this->elevationData = httpRequester->getElevationData(this->southWest, this->northEast, this->elevationRows, this->elevationCols, "sealevel");
+	char * bufferName = (char*)malloc(1024);	
+	sprintf(bufferName, "Data/%f.%f.%f.%f", this->southWest.latitude, this->southWest.longtitude, this->northEast.latitude, this->northEast.longtitude);
+
+	char * buffer = (char*)malloc(100);
+
+	sprintf(buffer, "%s.%d,%d.elevation", bufferName, this->elevationData->rows, this->elevationData->cols);
+
+	this->elevationData = ElevationData::readFromDrive(this->southWest, this->northEast, buffer);
+
+	if (this->elevationData == NULL) {
+		this->elevationData = httpRequester->getElevationData(this->southWest, this->northEast, "sealevel");
+		if (this->saveDataOnDrive) {
+			this->elevationData->saveOnDrive(buffer);
+		}
+
+
+	}
 	
 
-	this->vertices = new Vertex*[this->elevationRows];
-	for (int row = 0; row < this->elevationRows; row++)
-		this->vertices[row] = new Vertex[this->elevationCols];
+
+
+	this->vertices = new Vertex*[ElevationData::rows];
+	for (int row = 0; row < ElevationData::rows; row++)
+		this->vertices[row] = new Vertex[ElevationData::cols];
 
 	int earthRadius = 10;//6378410;
-		for (int i = 0; i < this->elevationRows; i++)
-			for (int j = 0; j < this->elevationCols; j++) {
+		for (int i = 0; i < ElevationData::rows; i++)
+			for (int j = 0; j < ElevationData::cols; j++) {
 				this->vertices[i][j].position = glm::vec3(
 					(float)(earthRadius /*+ this->elevationData->heights[i][j]*/)*sin(this->elevationData->coordinates[i][j].longtitude)*sin(this->elevationData->coordinates[i][j].latitude),
 					(float)(earthRadius /*+ this->elevationData->heights[i][j]*/)*cos(this->elevationData->coordinates[i][j].longtitude)*sin(this->elevationData->coordinates[i][j].latitude),
 					(float)(earthRadius/* + this->elevationData->heights[i][j]*/)*cos(this->elevationData->coordinates[i][j].latitude));
 		}
 
+	free(buffer);
+	buffer = (char*)malloc(100);
+	sprintf(buffer, "%s.jpeg", bufferName);
+	char * buffer2 = (char*)malloc(100);
+	sprintf(buffer2, "%s.metadata", bufferName);
 
-	this->satelliteImage = httpRequester->getSatelliteImageSource(this);
+	this->satelliteImage = SatelliteImage::readFromDrive(buffer, buffer2);
+
+	if (this->satelliteImage == NULL) {
+		this->satelliteImage = httpRequester->getSatelliteImageSource(this);
+		if (this->saveDataOnDrive) {
+			this->satelliteImage->saveOnDrive(buffer);
+			this->satelliteImage->metadata->saveOnDrive(buffer2);
+		}
+
+
+	}
+
+
 
 	float positionY;
-	for (int i = 0; i < this->elevationRows; i++) {
-		if (i == this->elevationRows - 1)
+	for (int i = 0; i < ElevationData::rows; i++) {
+		if (i == ElevationData::rows - 1)
 			positionY = 1;
 		else
-			positionY = (float)(1-(float)(this->satelliteImage->metadata->markers[1][i]- this->satelliteImage->metadata->markers[1][this->elevationRows-1])/(float)this->satelliteImage->metadata->sizeY());
-		for (int j = 0; j < this->elevationCols; j++) {
-			this->vertices[i][j].textureCoord = glm::vec2((float)j / (this->elevationCols - 1), positionY);
+			positionY = (float)(1-(float)(this->satelliteImage->metadata->markers[1][i]- this->satelliteImage->metadata->markers[1][ElevationData::rows-1])/(float)this->satelliteImage->metadata->sizeY());
+		for (int j = 0; j < ElevationData::cols; j++) {
+			this->vertices[i][j].textureCoord = glm::vec2((float)j / (ElevationData::cols - 1), positionY);
 		}
 	}
 	this->isDownloaded.store(true);
+
+
+	free(bufferName);
+	free(buffer);
+	free(buffer2);
+
 }
 
 
@@ -110,7 +149,7 @@ void Chunk::loadChunk() {
 	}
 	else {
 		if (this->isDownloaded.load() && !this->isLoaded) {
-			this->satelliteImage->texture = new Texture(this->satelliteImage->source,this);
+			this->satelliteImage->texture = new Texture(this->satelliteImage->source);
 			this->isLoaded = true;
 		}
 	}
@@ -151,8 +190,8 @@ void Chunk::draw() {
 		glBegin(GL_QUAD_STRIP);
 		bool side = true;
 		
-		for (int i = 1; i < this->elevationRows; i++) {
-			for (int j = 0; j < this->elevationCols; j++) {
+		for (int i = 1; i < ElevationData::rows; i++) {
+			for (int j = 0; j < ElevationData::cols; j++) {
 				glTexCoord2f(this->vertices[i][j].textureCoord.x, this->vertices[i][j].textureCoord.y);	glVertex3f(this->vertices[i][j].position.x, this->vertices[i][j].position.y, this->vertices[i][j].position.z);
 				glTexCoord2f(this->vertices[i - 1][j].textureCoord.x, this->vertices[i - 1][j].textureCoord.y);	glVertex3f(this->vertices[i - 1][j].position.x, this->vertices[i - 1][j].position.y, this->vertices[i-1][j].position.z);
 			//	std::cout << this->vertices[i][j].position.x << "  " <<this->vertices[i][j].position.y  << "  " << this->vertices[i][j].position.z << std::endl;
@@ -181,4 +220,19 @@ bool Chunk::isChildsLoaded()
 			return false;
 	}
 	return true;
+}
+
+void Chunk::saveOnDrive(std::string path)
+{
+
+	this->satelliteImage->saveOnDrive(path+".jpeg");
+	this->satelliteImage->metadata->saveOnDrive(path + ".metadata");
+
+	char * buffer = (char*)malloc(30);
+
+	sprintf(buffer, ".%d,%d.elevation", this->elevationData->rows, this->elevationData->cols);
+	this->elevationData->saveOnDrive(path + buffer);
+
+	free(buffer);
+
 }

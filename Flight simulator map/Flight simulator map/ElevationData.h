@@ -5,13 +5,17 @@
 class ElevationData
 {
 private:
-	short rows, cols;
 	Coordinate southWest,northEast;
 
 public:
+	static short rows, cols;
+	std::string source;
 	float ** heights;
+	int sourceSize;
 	Coordinate ** coordinates;
-	ElevationData(short rows,short cols, Coordinate southWest, Coordinate northEast, std::string source);
+	ElevationData(Coordinate southWest, Coordinate northEast, std::string source, int sourceSize);
 	~ElevationData();
+	void saveOnDrive(std::string path);
+	static ElevationData* readFromDrive(Coordinate southWest, Coordinate northEast,std::string path);
 };
 

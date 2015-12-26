@@ -1,3 +1,7 @@
-par1=war1
-par2=war2
-par3=577754
+elevationRows=32
+elevationCols=31
+dataServer=dev.virtualearth.net
+licenceKey=AmvBSIeUUlRjloCddNtHCJft8mzVk4CVzM7P53PGl7eYptDqJN1yj1aG7typ-8K8
+saveDataOnDrive=true
+prefImageSizeX=800
+prefImageSizeY=800

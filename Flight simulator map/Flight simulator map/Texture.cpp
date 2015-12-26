@@ -37,9 +37,8 @@ inline long _stdcall streamTellProc(fi_handle handle) {
 	return ((int)Texture::LoadAdress - (int)handle);
 }
 
-Texture::Texture(char* source, void* tmp)
+Texture::Texture(char* source)
 {
-	Chunk* tmp8 = (Chunk*)tmp;
 	glGenTextures(1, &this->id);
 
 	FREE_IMAGE_FORMAT fif = FIF_JPEG;
@@ -55,16 +54,14 @@ Texture::Texture(char* source, void* tmp)
 		io.tell_proc = streamTellProc;
 		io.seek_proc = streamSeekProc;
 
-		char* cpy = (char*)malloc(*(int*)tmp8->satelliteImage->header);
-		memcpy(cpy, source, *(int*)tmp8->satelliteImage->header);
 
-		Texture::LoadAdress = (char*)cpy;
+		Texture::LoadAdress = (char*)source;
 
 
 		EXCEPTION_POINTERS * eps = 0;
 		__try {
 
-		dib = FreeImage_LoadFromHandle(FIF_JPEG, &io, (fi_handle)cpy);
+		dib = FreeImage_LoadFromHandle(FIF_JPEG, &io, (fi_handle)source);
 		}
 
 		__except (eps = GetExceptionInformation(), EXCEPTION_EXECUTE_HANDLER) {
@@ -92,7 +89,6 @@ Texture::Texture(char* source, void* tmp)
 
 
 	FreeImage_Unload(dib);
-	//free((char*)source);
 }
 
 Texture::~Texture()
