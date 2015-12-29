@@ -6,6 +6,7 @@
 #include <atomic>
 #include "HttpRequester.h"
 #include "Vertex.h"
+#include "Camera.h"
 
 class Chunk
 {
@@ -20,7 +21,9 @@ public:
 	Chunk(Coordinate southWest, Coordinate northEast, Chunk* parent);
 	~Chunk();
 	void test();
-
+	static short LevelOfDetailCount;
+	static double LevelOfDetail[];
+	static void loadLevelOfDetail();
 	Coordinate southWest, northEast;
 	short elevationDataAccuracy;
 	short satelliteImageAccuracy;	
@@ -28,13 +31,20 @@ public:
 	SatelliteImage *satelliteImage;
 	static ChunkShader* Shader;
 	static bool saveDataOnDrive;
-
+	short detailLevel;
 	void loadChunk();
 	void downloadChunk(HttpRequester* httpRequester);
 	void draw();
+	bool toRemove;
+	static double minHorizont;
+	bool visible;
 	void createChild();
+	void removeChild();
 	static void loadHttpData();
 	bool isChildsLoaded();
 	void saveOnDrive(std::string pat);
+	double distanceFromCamera(short accuracy);
+	short calculatePrefDetailLevel(short accuracy);
+	void calculateAllDetails();
 };
 

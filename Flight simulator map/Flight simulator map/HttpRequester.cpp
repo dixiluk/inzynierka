@@ -16,18 +16,20 @@ HttpRequester::HttpRequester(std::string server, std::string key)
 {
 	this->key = key;
 	this->server = server;
-
-	this->connectionSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	struct hostent *host;
-	host = gethostbyname(this->server.c_str());
-	SOCKADDR_IN SockAddr;
-	SockAddr.sin_port = htons(80);
-	SockAddr.sin_family = AF_INET;
-	SockAddr.sin_addr.s_addr = *((unsigned long*)host->h_addr);
-	if (connect(this->connectionSocket, (SOCKADDR*)(&SockAddr), sizeof(SockAddr)) != 0) {
-		std::cout << "Could not connect";
-		system("pause");
-		exit(-1);
+	while (true) {
+		this->connectionSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+		struct hostent *host;
+		host = gethostbyname(this->server.c_str());
+		SOCKADDR_IN SockAddr;
+		SockAddr.sin_port = htons(80);
+		SockAddr.sin_family = AF_INET;
+		SockAddr.sin_addr.s_addr = *((unsigned long*)host->h_addr);
+		if (connect(this->connectionSocket, (SOCKADDR*)(&SockAddr), sizeof(SockAddr)) != 0) {
+			std::cout << "Could not connect! Recconecting..." << GetLastError() << std::endl;
+			continue;
+		}
+		std::cout << "conect" << std::endl;
+		break;
 	}
 }
 

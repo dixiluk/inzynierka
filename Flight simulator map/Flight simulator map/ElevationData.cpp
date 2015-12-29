@@ -4,7 +4,6 @@
 #include <sstream>
 #include "Config.h"
 
-
 #define PI2  6.28318531
 short ElevationData::rows;
 short ElevationData::cols;

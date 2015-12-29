@@ -1,9 +1,9 @@
 #include "SatelliteImageMetadata.h"
 #include <sstream>
 #include <list>
+#include <Windows.h>
 
-
-
+#include <errno.h>
 SatelliteImageMetadata::SatelliteImageMetadata(std::string source, int sourceSize)
 {
 	this->source = source;
@@ -117,11 +117,11 @@ SatelliteImageMetadata* SatelliteImageMetadata::readFromDrive(std::string path)
 	int lSize;
 	char * buffer;
 	size_t result;
-
+	Sleep(5);
 	FILE* file = fopen(path.c_str(), "rb");
 
 	if (file == NULL) {
-		std::cout << "error" << std::endl;
+		std::cout << "error" << errno<< std::endl;
 		return NULL;
 	}
 

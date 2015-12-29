@@ -53,10 +53,11 @@ SatelliteImage *SatelliteImage::readFromDrive(std::string path, std::string meta
 		return NULL;
 	}
 
-
+	fclose(file);
 
 	SatelliteImageMetadata * tmp = SatelliteImageMetadata::readFromDrive(metadataPath);
-	if (tmp == NULL)return NULL;
+	if (tmp == NULL)
+		return NULL;
 	return new SatelliteImage(buffer, lSize,tmp);
 	
 }

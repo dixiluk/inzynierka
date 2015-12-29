@@ -18,7 +18,7 @@ Camera::Camera(glm::vec3 position, glm::vec3 direction, glm::vec3 axis)
 
 	this->setPerspective(45.0,
 		(GLfloat)GraphicalEngine::Instance->resolution.Width
-		/ GraphicalEngine::Instance->resolution.Height, 1, 5000);
+		/ GraphicalEngine::Instance->resolution.Height, 0.3, 500000);
 	this->setupCamera();
 }
 
