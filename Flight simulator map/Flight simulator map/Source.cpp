@@ -31,6 +31,8 @@ int main(int argc, char * argv[])
 	Chunk::saveDataOnDrive = Config::Instance->takeConfigBool("saveDataOnDrive");
 	Chunk::minHorizont = Config::Instance->takeConfigInt("minHorizont");
 	MapLoader::Instance->createThread(1);
+	Chunk::levelOfDetailCheckAccuracy = Config::Instance->takeConfigInt("levelOfDetailCheckAccuracy");
+	Chunk::levelOfDetailCheckPresent = 0;
 	
 	GraphicalEngine::Instance = new GraphicalEngine(GraphicalEngine::Resolution(1440, 900));
 	GraphicalEngine::Init(argc, argv);

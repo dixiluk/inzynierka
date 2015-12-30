@@ -25,3 +25,4 @@ LevelOfDetail2=160000
 LevelOfDetail1=320000
 LevelOfDetail0=320000
 minHorizont=300
+levelOfDetailCheckAccuracy=10

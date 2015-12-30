@@ -5,12 +5,10 @@
 class Texture
 {
 public:
-	Texture(char* source);
+	Texture(char* source, long unsigned int size);
 	Texture();
 	~Texture();
 	GLuint id;
-
-	static fi_handle LoadAdress;
 
 protected:
 private:

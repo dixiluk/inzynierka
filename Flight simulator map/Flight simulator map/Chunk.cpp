@@ -10,7 +10,8 @@
 ChunkShader *Chunk::Shader = NULL;
 
 bool Chunk::saveDataOnDrive;
-
+short Chunk::levelOfDetailCheckAccuracy;
+short Chunk::levelOfDetailCheckPresent;
 short Chunk::LevelOfDetailCount;
 double Chunk::LevelOfDetail[20];
 
@@ -25,6 +26,7 @@ Chunk::Chunk(Coordinate southWest, Coordinate northEast, Chunk* parent)
 	else {
 		this->detailLevel = parent->detailLevel +1;
 	}
+	this->levelOfDetailCheck = rand() % this->levelOfDetailCheckAccuracy;
 	this->visible = true;
 	this->toRemove = false;
 	this->northEast = northEast;
@@ -185,7 +187,7 @@ void Chunk::loadChunk() {
 	else {
 		if (this->isDownloaded.load() && !this->isLoaded) {
 			std::cout << tmp++ << std::endl;
-			this->satelliteImage->texture = new Texture(this->satelliteImage->source);
+			this->satelliteImage->texture = new Texture(this->satelliteImage->source,this->satelliteImage->sourceSize);
 			this->isLoaded = true;
 		}
 	}
@@ -273,7 +275,7 @@ void Chunk::saveOnDrive(std::string path)
 
 }
 
-double Chunk::distanceFromCamera(short accuracy)
+double Chunk::distanceFromCamera()
 {
 	double distanceCameraFromCenter = glm::distance(Camera::ActiveCamera->position,glm::vec3(0,0,0));
 	double latitude = acos(Camera::ActiveCamera->position.z / distanceCameraFromCenter);
@@ -319,8 +321,8 @@ double Chunk::distanceFromCamera(short accuracy)
 	return minDistance;
 }
 
-short Chunk::calculatePrefDetailLevel(short accuracy){
-	double distance= this->distanceFromCamera(accuracy);
+short Chunk::calculatePrefDetailLevel(){
+	double distance= this->distanceFromCamera();
 	double cameraDistance = glm::distance(Camera::ActiveCamera->position, glm::vec3(0, 0, 0));
 	double horizont;
 	if (cameraDistance <= earthRadius)
@@ -338,6 +340,7 @@ short Chunk::calculatePrefDetailLevel(short accuracy){
 }
 void Chunk::calculateAllDetails()
 {
+
 	if (this->childExist && this->isChildsLoaded()) {
 		if (this->child[0]->toRemove && this->child[1]->toRemove && this->child[2]->toRemove && this->child[3]->toRemove)
 			this->removeChild();
@@ -347,9 +350,10 @@ void Chunk::calculateAllDetails()
 			}
 	}
 	else{
+		if (this->levelOfDetailCheck != this->levelOfDetailCheckPresent) return;
 		if (!this->isDownloaded) return;
 		if (!this->childExist) {
-			short prefDetailLevel = this->calculatePrefDetailLevel(0);
+			short prefDetailLevel = this->calculatePrefDetailLevel();
 			if (this->detailLevel < prefDetailLevel) {	//trzeba powiekszyc jakosc
 				this->createChild();
 			}

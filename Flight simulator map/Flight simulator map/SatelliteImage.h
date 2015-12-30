@@ -9,7 +9,7 @@ private:
 
 public:
 	char* source;
-	int sourceSize;
+	long unsigned int sourceSize;
 	char* header;
 	Texture* texture;
 	SatelliteImageMetadata *metadata;

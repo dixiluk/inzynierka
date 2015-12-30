@@ -3,7 +3,6 @@
 #include <GL/glext.h>
 #include <stdio.h>
 #include <cmath>
-#include <FreeImage.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>

@@ -137,6 +137,8 @@ void GraphicalEngine::UpdatePass()	//wykonywanie wszystkich obliczen
 	czasLoadowania += GetTickCount() - t1;;
 	if (calculate) {
 		t1 = GetTickCount();
+		if (Chunk::levelOfDetailCheckPresent >= Chunk::levelOfDetailCheckAccuracy-1) Chunk::levelOfDetailCheckPresent = 0;
+		else Chunk::levelOfDetailCheckPresent += 1;
 		Instance->worldChunk1->calculateAllDetails();
 		Instance->worldChunk2->calculateAllDetails();
 		czasKalkulowania += GetTickCount() - t1;

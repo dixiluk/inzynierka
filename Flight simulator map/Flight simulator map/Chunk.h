@@ -16,6 +16,9 @@ private:Chunk* parent;
 	Chunk* child[4];
 	bool childExist;
 public:
+	static short levelOfDetailCheckAccuracy;
+	static short levelOfDetailCheckPresent;
+	short levelOfDetailCheck;
 	bool isLoaded;
 	std::atomic<bool> isDownloaded;
 	Chunk(Coordinate southWest, Coordinate northEast, Chunk* parent);
@@ -43,8 +46,8 @@ public:
 	static void loadHttpData();
 	bool isChildsLoaded();
 	void saveOnDrive(std::string pat);
-	double distanceFromCamera(short accuracy);
-	short calculatePrefDetailLevel(short accuracy);
+	double distanceFromCamera();
+	short calculatePrefDetailLevel();
 	void calculateAllDetails();
 };
 
