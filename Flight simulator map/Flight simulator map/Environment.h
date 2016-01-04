@@ -22,3 +22,7 @@
 #define SHADERS_SUBDIR "Shaders/"
 #define MODELS_SUBDIR "Models/"
 
+
+
+#define earthRadius 6378.410
+#define PI2  6.28318531

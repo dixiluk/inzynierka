@@ -28,7 +28,6 @@ HttpRequester::HttpRequester(std::string server, std::string key)
 			std::cout << "Could not connect! Recconecting..." << GetLastError() << std::endl;
 			continue;
 		}
-		std::cout << "conect" << std::endl;
 		break;
 	}
 }
@@ -46,7 +45,7 @@ ElevationData* HttpRequester::getElevationData(Coordinate southWest, Coordinate 
 	this->header.clear();
 
 	requestBuffer = (char*)malloc(4086);
-	sprintf(requestBuffer, ElevationMessage, northEast.latitude, northEast.longtitude, southWest.latitude, southWest.longtitude, ElevationData::rows, ElevationData::cols, height.c_str(), key.c_str());
+	sprintf(requestBuffer, ElevationMessage, southWest.latitude, southWest.longtitude, northEast.latitude, northEast.longtitude, ElevationData::rows, ElevationData::cols, height.c_str(), key.c_str());
 	if (send(this->connectionSocket, requestBuffer, strlen(requestBuffer), 0) <= 0)
 	{
 		std::cout << "1 Connection error!" << std::endl;

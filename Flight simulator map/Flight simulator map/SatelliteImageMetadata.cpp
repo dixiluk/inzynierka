@@ -16,6 +16,7 @@ SatelliteImageMetadata::SatelliteImageMetadata(std::string source, int sourceSiz
 
 SatelliteImageMetadata::~SatelliteImageMetadata()
 {
+	this->source.clear();
 }
 
 void SatelliteImageMetadata::readPositions() {

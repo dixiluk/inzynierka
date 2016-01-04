@@ -18,7 +18,7 @@ Camera::Camera(glm::vec3 position, glm::vec3 direction, glm::vec3 axis)
 
 	this->setPerspective(45.0,
 		(GLfloat)GraphicalEngine::Instance->resolution.Width
-		/ GraphicalEngine::Instance->resolution.Height, 0.3, 500000);
+		/ GraphicalEngine::Instance->resolution.Height, 0.05, 500);
 	this->setupCamera();
 }
 
@@ -123,7 +123,22 @@ glm::vec4 Camera::calculateModelViewProjMatrix(glm::vec4 modelViewMatrix){
 
 
 void Camera::moveForward(float power) {
-	this->position += this->direction*power;
+	glm::vec3 cameraNewPosition;
+	float speed = this->speed/60/60/60;
+	if (power == 1) 		
+		cameraNewPosition = this->position + (this->direction * speed);
+	else 
+		cameraNewPosition = this->position - (this->direction * speed);
+
+		double distanceNew = glm::distance(cameraNewPosition, glm::vec3(0, 0, 0));
+		double distance = glm::distance(this->position, glm::vec3(0, 0, 0));
+		
+/*
+		if (((this->hight + distanceNew - distance) < this->minHight) && distanceNew<distance)
+			return;
+		if (((this->hight + distanceNew - distance) > this->maxHight) && distanceNew>distance)
+			return;*/
+		this->position = cameraNewPosition;
 }
 
 

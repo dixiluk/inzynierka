@@ -11,43 +11,61 @@
 class Chunk
 {
 
-private:Chunk* parent;
-	Vertex **vertices;
+private:
+	Chunk* parent;
 	Chunk* child[4];
 	bool childExist;
+	bool isLoaded;
+	bool toRemove;
+	std::atomic<bool> isDownloaded;
+	std::atomic<bool> isNowDownloading;
+	static short LevelOfDetailCount;
+	static double LevelOfDetail[];
 public:
 	static short levelOfDetailCheckAccuracy;
 	static short levelOfDetailCheckPresent;
 	short levelOfDetailCheck;
-	bool isLoaded;
-	std::atomic<bool> isDownloaded;
+
 	Chunk(Coordinate southWest, Coordinate northEast, Chunk* parent);
 	~Chunk();
-	void test();
-	static short LevelOfDetailCount;
-	static double LevelOfDetail[];
+
+	
 	static void loadLevelOfDetail();
 	Coordinate southWest, northEast;
-	short elevationDataAccuracy;
-	short satelliteImageAccuracy;	
+
 	ElevationData *elevationData;
 	SatelliteImage *satelliteImage;
 	static ChunkShader* Shader;
 	static bool saveDataOnDrive;
+	
 	short detailLevel;
 	void loadChunk();
 	void downloadChunk(HttpRequester* httpRequester);
 	void draw();
-	bool toRemove;
-	static double minHorizont;
 	bool visible;
 	void createChild();
 	void removeChild();
 	static void loadHttpData();
-	bool isChildsLoaded();
+	bool isChildrenDowdloaded();
 	void saveOnDrive(std::string pat);
 	double distanceFromCamera();
 	short calculatePrefDetailLevel();
 	void calculateAllDetails();
+	bool Chunk::isChildrenToRemove();
+	bool Chunk::isChildrenLoaded();
+	void createBeginChunks();
+	void loadBeginChunks();
+	void loadChildren();
+	//Zero
+	GLuint vertexArrayId;
+	float* textureCoordinants;
+	float* vertices;
+	int verticesCount;
+	unsigned int* indices;
+	int indicesSize;
+	void calculateVertexArrayTextureCoordinants();
+	void calculateVertexArrayVertices();
+	void calculateVertexArrayIndices();
+	void loadVertexArray();
 };
 

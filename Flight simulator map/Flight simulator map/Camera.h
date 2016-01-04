@@ -16,7 +16,6 @@ public:
 	double fovY, zNear, zFar, aspectRatio;
 	glm::vec3 position, direction, axis;
 	double pitch, yaw;
-	
 
 	bool mouseMotion;
 
@@ -29,7 +28,7 @@ public:
 	void setZFar(GLdouble zFar);
 	void setDirectionToPosition(glm::vec3 position);
 	void setPerspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
-
+	float hight,newHight, maxHight, minHight, speed;
 	glm::vec4 calculateModelViewProjMatrix(glm::vec4 modelViewMatrix);
 	void moveForward(float power);
 

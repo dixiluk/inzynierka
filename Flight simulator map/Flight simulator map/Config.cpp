@@ -54,9 +54,10 @@ std::string Config::takeConfigString(std::string parameterName) {
 	}
 	return "";
 }
-int Config::takeConfigInt(std::string parameterName) {
+double Config::takeConfigDouble(std::string parameterName) {
 	try {
-		return atoi((char*)this->takeConfigString(parameterName).c_str());
+		std::string parameter =  this->takeConfigString(parameterName);
+		return atof((char*)parameter.c_str());
 	}
 	catch (std::string e) {
 		std::cout << "config error";

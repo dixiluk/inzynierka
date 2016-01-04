@@ -5,6 +5,8 @@
 #include "HttpRequester.h"
 #include <thread>
 
+
+
 GraphicalEngine* GraphicalEngine::Instance = nullptr;
 
 
@@ -85,10 +87,6 @@ void GraphicalEngine::KeyboardUpFunc(unsigned char key, int x, int y)
 {
 	GraphicalEngine::Instance->keyboard[key] = false;
 
-	if (key == 'm') {
-		GraphicalEngine::Instance->worldChunk1->test();
-		GraphicalEngine::Instance->worldChunk2->test();
-	}
 }
 
 void GraphicalEngine::SpecialFunc(int key, int x, int y)
@@ -114,11 +112,13 @@ long t1;
 bool calculate = false;
 void GraphicalEngine::UpdatePass()	//wykonywanie wszystkich obliczen
 {
-	if(GraphicalEngine::Instance->keyboard['w'])
-		Camera::ActiveCamera->moveForward(100);
+	if (GraphicalEngine::Instance->keyboard['w']) {
+		Camera::ActiveCamera->moveForward(1);
+	}
 
-	if (GraphicalEngine::Instance->keyboard['s'])
-		Camera::ActiveCamera->moveForward(-100);
+	if (GraphicalEngine::Instance->keyboard['s']) {
+		Camera::ActiveCamera->moveForward(-1);
+	}
 
 	if (GraphicalEngine::Instance->keyboard['p'])
 		calculate = true;
@@ -134,10 +134,20 @@ void GraphicalEngine::UpdatePass()	//wykonywanie wszystkich obliczen
 	t1 = GetTickCount();
 	Instance->worldChunk1->loadChunk();
 	Instance->worldChunk2->loadChunk();
+	Instance->southChunk->loadChunk();
+	Instance->northChunk->loadChunk();
+
+
 	czasLoadowania += GetTickCount() - t1;;
+
+
 	if (calculate) {
 		t1 = GetTickCount();
-		if (Chunk::levelOfDetailCheckPresent >= Chunk::levelOfDetailCheckAccuracy-1) Chunk::levelOfDetailCheckPresent = 0;
+		if (Chunk::levelOfDetailCheckPresent >= Chunk::levelOfDetailCheckAccuracy - 1) {
+			Chunk::levelOfDetailCheckPresent = 0;
+			Camera::ActiveCamera->hight = Camera::ActiveCamera->newHight;
+			Camera::ActiveCamera->newHight = -1;
+		}
 		else Chunk::levelOfDetailCheckPresent += 1;
 		Instance->worldChunk1->calculateAllDetails();
 		Instance->worldChunk2->calculateAllDetails();
@@ -155,6 +165,8 @@ void GraphicalEngine::RenderPass() {	//funkcja wykonania rysowania wszystich ele
 	t1 = GetTickCount();
 	Instance->worldChunk1->draw();
 	Instance->worldChunk2->draw();
+	Instance->southChunk->draw();
+	Instance->northChunk->draw();
 	czaswyswietlania += GetTickCount() - t1;;
 
 

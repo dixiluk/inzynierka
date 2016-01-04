@@ -66,4 +66,8 @@ SatelliteImage *SatelliteImage::readFromDrive(std::string path, std::string meta
 
 SatelliteImage::~SatelliteImage()
 {
+	if(this->texture!=NULL)
+		delete this->texture;
+	if(this->metadata)
+		delete this->metadata;
 }

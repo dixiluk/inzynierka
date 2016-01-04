@@ -12,6 +12,6 @@ public:
 	~Config();
 	void loadFile();
 	std::string takeConfigString(std::string parameterName);
-	int takeConfigInt(std::string parameterName);
+	double takeConfigDouble(std::string parameterName);
 	bool takeConfigBool(std::string parameterName);
 };

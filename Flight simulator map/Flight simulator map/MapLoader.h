@@ -14,6 +14,7 @@ public:
 	void addLowPriorityTask(Chunk* chunk);
 	void createThread(int count);
 	static void ThreadFunc();
+	static void createMap();
 	MapLoader();
 	~MapLoader();
 };

@@ -20,6 +20,8 @@ public:
 
 	Chunk *worldChunk1;
 	Chunk *worldChunk2;
+	Chunk *northChunk;
+	Chunk *southChunk;
 	Config *activeConfig;
 	PFNGLWINDOWPOS2IPROC glWindowPos2i;
 

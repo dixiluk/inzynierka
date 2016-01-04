@@ -76,6 +76,21 @@ void MapLoader::ThreadFunc()
 	}
 }
 
+void MapLoader::createMap()
+{
+
+	GraphicalEngine::Instance->worldChunk1 = new Chunk(Coordinate(-80, 0), Coordinate(80, 180), NULL);
+	GraphicalEngine::Instance->worldChunk1->createBeginChunks();
+	GraphicalEngine::Instance->worldChunk1->loadBeginChunks();
+	GraphicalEngine::Instance->worldChunk2 = new Chunk(Coordinate(-80, -180), Coordinate(80, 0), NULL);
+	GraphicalEngine::Instance->worldChunk2->createBeginChunks();
+	GraphicalEngine::Instance->worldChunk2->loadBeginChunks();
+	GraphicalEngine::Instance->northChunk = new Chunk(Coordinate(90, -180), Coordinate(80, 180), NULL);
+	MapLoader::Instance->addLowPriorityTask(GraphicalEngine::Instance->northChunk);
+	GraphicalEngine::Instance->southChunk = new Chunk(Coordinate(-90, -180), Coordinate(-80, 180), NULL);
+	MapLoader::Instance->addLowPriorityTask(GraphicalEngine::Instance->southChunk);
+}
+
 MapLoader::MapLoader()
 {
 	this->taskListLocked.store(false);
