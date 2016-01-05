@@ -37,7 +37,7 @@ int main(int argc, char * argv[])
 	
 	Chunk::Shader = new ChunkShader();
 
-	float hight = 1;
+	float hight = 100;
 	//Coordinate cameraCordinate = Coordinate(PI2*(52.23 + 90) / 360, PI2*(21 + 180) / 360);
 	Coordinate cameraCordinate = Coordinate(PI2*(49.36 + 90) / 360, PI2*(20 + 180) / 360);
 	//Coordinate cameraCordinate = Coordinate(PI2*(27.98327226 + 90) / 360, PI2*(86.93383789 + 180) / 360); //himalaje

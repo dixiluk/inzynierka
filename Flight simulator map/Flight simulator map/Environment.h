@@ -16,7 +16,7 @@
 #include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
 #include <glm/gtc/type_ptr.hpp> // glm::value_ptr
 
-#define WINDOW_TITLE "RacingGame"
+#define WINDOW_TITLE "Flight Simulator"
 
 #define TEXTURES_SUBDIR "Textures/"
 #define SHADERS_SUBDIR "Shaders/"

@@ -34,14 +34,41 @@ void Camera::CameraMotion(GLint x, GLint y)	//funkcja obracanie kamery myszka
 		&& (y == GraphicalEngine::Instance->resolution.Height / 2 + 1 || y == GraphicalEngine::Instance->resolution.Height / 2 - 1 || y == GraphicalEngine::Instance->resolution.Height / 2)) return;
 	ActiveCamera->pitch += ((GLdouble)x - GraphicalEngine::Instance->resolution.Width / 2) / 1000;
 	ActiveCamera->yaw += ((GLdouble)y - GraphicalEngine::Instance->resolution.Height / 2) / 1000;
-
+	//ActiveCamera->yaw = 0;
 	if (ActiveCamera->pitch > PI2) ActiveCamera->pitch = ActiveCamera->pitch - PI2;
-	if (ActiveCamera->yaw >= PIS2) ActiveCamera->yaw = PIS2;
-	if (ActiveCamera->yaw <= -PIS2) ActiveCamera->yaw = -PIS2;
+	if (ActiveCamera->pitch < 0) ActiveCamera->pitch = ActiveCamera->pitch + PI2;
 
-	ActiveCamera->direction.x = -sin(ActiveCamera->pitch)*cos(ActiveCamera->yaw);
-	ActiveCamera->direction.y = -sin(ActiveCamera->yaw);
-	ActiveCamera->direction.z = cos(ActiveCamera->pitch)*cos(ActiveCamera->yaw);
+	if (ActiveCamera->yaw > PIS2-0.1) ActiveCamera->yaw = PIS2 - 0.1;
+	if (ActiveCamera->yaw < -PIS2+0.1) ActiveCamera->yaw = -PIS2 + 0.1;
+
+	glm::mat4 rotationMatrix1, rotationMatrix2;
+
+	glm::vec3 toMiddle = glm::normalize(Camera::ActiveCamera->position);
+	glm::vec3 vec1 = glm::cross(toMiddle, glm::vec3(0, 1, 0));
+	glm::vec3 vec2 = glm::cross(toMiddle, vec1);
+
+	rotationMatrix1 = glm::rotate(glm::mat4(1), (float)ActiveCamera->yaw, vec2);
+	rotationMatrix2 = glm::rotate(glm::mat4(1), (float)-ActiveCamera->pitch, toMiddle);
+
+	vec1 = glm::vec3(rotationMatrix1* glm::vec4(vec1, 1));
+	vec1 = glm::vec3(rotationMatrix2* glm::vec4(vec1, 1));
+
+	
+		double distanceCameraFromCenter = glm::distance(Camera::ActiveCamera->position, glm::vec3(0, 0, 0));
+	double latitude = acos(Camera::ActiveCamera->position.z / distanceCameraFromCenter);
+	double longtitude = atan2(Camera::ActiveCamera->position.x, Camera::ActiveCamera->position.y);
+	
+	ActiveCamera->axis = toMiddle;
+	ActiveCamera->direction = vec1;
+
+	/*
+	ActiveCamera->direction.z = -sin(ActiveCamera->pitch)*sin(ActiveCamera->yaw);
+	ActiveCamera->direction.x = cos(ActiveCamera->pitch)*sin(ActiveCamera->yaw);
+	ActiveCamera->direction.y = cos(ActiveCamera->yaw);*/
+	
+
+	std::cout << ActiveCamera->pitch << " , " << ActiveCamera->yaw << std::endl;
+	std::cout << ActiveCamera->direction.x << " , " << ActiveCamera->direction.y << " , " << ActiveCamera->direction.z << std::endl;
 
 	glutWarpPointer(GraphicalEngine::Instance->resolution.Width / 2, GraphicalEngine::Instance->resolution.Height / 2);
 	ActiveCamera->setupCamera();

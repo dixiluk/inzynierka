@@ -117,8 +117,8 @@ void Chunk::downloadChunk(HttpRequester* httpRequester)
 
 	char * buffer = (char*)malloc(100);
 
-	sprintf(buffer, "%s.%d,%d.elevation", bufferName, this->elevationData->rows, this->elevationData->cols);
-	//sprintf(buffer, "%s%d.elevation", "Data/", 1);
+	//sprintf(buffer, "%s.%d,%d.elevation", bufferName, this->elevationData->rows, this->elevationData->cols);
+	sprintf(buffer, "%s%d.elevation", "Data/", 1);
 	this->elevationData = ElevationData::readFromDrive(this->southWest, this->northEast, buffer);
 
 	if (this->elevationData == NULL) {
@@ -136,11 +136,11 @@ void Chunk::downloadChunk(HttpRequester* httpRequester)
 
 	free(buffer);
 	buffer = (char*)malloc(100);
-	sprintf(buffer, "%s.jpeg", bufferName);
-	//sprintf(buffer, "Data/%d.jpeg", this->detailLevel);
+	//sprintf(buffer, "%s.jpeg", bufferName);
+	sprintf(buffer, "Data/%d.jpeg", this->detailLevel);
 	char * buffer2 = (char*)malloc(100);
-	sprintf(buffer2, "%s.metadata", bufferName);
-	//sprintf(buffer2, "Data/%d.metadata", this->detailLevel);
+	//sprintf(buffer2, "%s.metadata", bufferName);
+	sprintf(buffer2, "Data/%d.metadata", this->detailLevel);
 
 	this->satelliteImage = SatelliteImage::readFromDrive(buffer, buffer2);
 
@@ -432,7 +432,7 @@ void Chunk::calculateVertexArrayVertices() {
 		for (int i = 0; i < ElevationData::rows; i++)
 			for (int j = 0; j < ElevationData::cols; j++) {
 				vertices[i*ElevationData::cols * 3 + j * 3] = (float)(earthRadius + (this->elevationData->heights[i][j] / 1000))*sin(this->elevationData->coordinates[i][j].longtitude)*sin(this->elevationData->coordinates[i][j].latitude);
-				vertices[i*ElevationData::cols * 3 + j * 3 + 1] = (float)(earthRadius + (this->elevationData->heights[i][j] / 1000))*cos(this->elevationData->coordinates[i][j].longtitude)*sin(this->elevationData->coordinates[i][j].latitude),
+				vertices[i*ElevationData::cols * 3 + j * 3 + 1] = (float)(earthRadius + (this->elevationData->heights[i][j] / 1000))*cos(this->elevationData->coordinates[i][j].longtitude)*sin(this->elevationData->coordinates[i][j].latitude);
 				vertices[i*ElevationData::cols * 3 + j * 3 + 2] = (float)(earthRadius + (this->elevationData->heights[i][j]/1000))*cos(this->elevationData->coordinates[i][j].latitude);
 			}
 
