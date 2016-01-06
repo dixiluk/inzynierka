@@ -71,3 +71,17 @@ SatelliteImage::~SatelliteImage()
 	if(this->metadata)
 		delete this->metadata;
 }
+
+bool SatelliteImage::CheckImage() {
+	int counter = 0;
+	if (this->width < 0 || this->height < 0)
+		return true;
+	for (int i = 0; i < this->width*this->height * 4; i += 4) {
+		if ((short)this->source[i] == -13 && (short)this->source[i + 1] == -14 && (short)this->source[i + 2] == -19)
+			counter++;
+	}
+	double filled = (double)counter / (this->width*this->height);
+	if(filled>0.2)
+		return false;
+	return true;
+}

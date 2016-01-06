@@ -22,13 +22,14 @@ public:
 	static int prefImageSizeX, prefImageSizeY;
 	HttpRequester(std::string server, std::string key);
 	~HttpRequester();
+	bool reconnect(bool force = true);
 
 	ElevationData* getElevationData(Coordinate southWest, Coordinate northEast, std::string height);
 	SatelliteImage* getSatelliteImageSource(Chunk* chunk);
-	SatelliteImageMetadata* getSatelliteImageMetadata(Coordinate southWest, Coordinate northEast, int sizeX, int sizeY, std::string format, std::string markers, short markerCount); // zwracam to jak podasz coœ w out_metadata
+	SatelliteImageMetadata* getSatelliteImageMetadata(Coordinate southWest, Coordinate northEast, int sizeX, int sizeY, std::string format, std::string markers, short markerCount); // zwracam to jak podasz co? w out_metadata
 private:
-	void receiveHeader();
-	void receiveChunkSource();
+	bool receiveHeader();
+	bool receiveChunkSource();
 
 };
 

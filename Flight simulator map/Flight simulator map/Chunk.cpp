@@ -33,6 +33,7 @@ Chunk::Chunk(Coordinate southWest, Coordinate northEast, Chunk* parent)
 		this->child[i] = NULL;
 	}
 	this->childExist = false;
+	this->canHaveChildren = true;
 	this->isDownloaded.store(false);
 	this->isLoaded = false;
 	this->isNowDownloading.store(false);
@@ -62,6 +63,7 @@ void Chunk::loadLevelOfDetail()
 
 
 void Chunk::createChild() {
+	if (!this->canHaveChildren) return;
 	Coordinate tmpCord = Coordinate::calculateMidle(this->southWest, this->northEast);
 	Coordinate tmpCord1 = this->northEast;
 	tmpCord1.latitude = tmpCord.latitude;
@@ -83,6 +85,7 @@ void Chunk::createChild() {
 }
 
 void Chunk::loadChildren() {
+	if (!this->canHaveChildren) return;
 
 	for (int i = 0; i < 4; i++) {
 
@@ -117,11 +120,12 @@ void Chunk::downloadChunk(HttpRequester* httpRequester)
 
 	char * buffer = (char*)malloc(100);
 
-	//sprintf(buffer, "%s.%d,%d.elevation", bufferName, this->elevationData->rows, this->elevationData->cols);
-	sprintf(buffer, "%s%d.elevation", "Data/", 1);
+	sprintf(buffer, "%s.%d,%d.elevation", bufferName, this->elevationData->rows, this->elevationData->cols);
+	//sprintf(buffer, "%s%d.elevation", "Data/", 1);
 	this->elevationData = ElevationData::readFromDrive(this->southWest, this->northEast, buffer);
 
 	if (this->elevationData == NULL) {
+		if(httpRequester==NULL) httpRequester = new HttpRequester(Config::Instance->takeConfigString("dataServer"), Config::Instance->takeConfigString("licenceKey"));
 		this->elevationData = httpRequester->getElevationData(this->southWest, this->northEast, "sealevel");
 		if (this->saveDataOnDrive) {
 			this->elevationData->saveOnDrive(buffer);
@@ -136,15 +140,19 @@ void Chunk::downloadChunk(HttpRequester* httpRequester)
 
 	free(buffer);
 	buffer = (char*)malloc(100);
-	//sprintf(buffer, "%s.jpeg", bufferName);
-	sprintf(buffer, "Data/%d.jpeg", this->detailLevel);
+	sprintf(buffer, "%s.jpeg", bufferName);
+	//sprintf(buffer, "Data/%d.jpeg", this->detailLevel);
+
+
+
 	char * buffer2 = (char*)malloc(100);
-	//sprintf(buffer2, "%s.metadata", bufferName);
-	sprintf(buffer2, "Data/%d.metadata", this->detailLevel);
+	sprintf(buffer2, "%s.metadata", bufferName);
+	//sprintf(buffer2, "Data/%d.metadata", this->detailLevel);
 
 	this->satelliteImage = SatelliteImage::readFromDrive(buffer, buffer2);
 
 	if (this->satelliteImage == NULL) {
+		if (httpRequester == NULL) httpRequester = new HttpRequester(Config::Instance->takeConfigString("dataServer"), Config::Instance->takeConfigString("licenceKey"));
 		this->satelliteImage = httpRequester->getSatelliteImageSource(this);
 		if (this->saveDataOnDrive) {
 			this->satelliteImage->saveOnDrive(buffer);
@@ -159,6 +167,9 @@ void Chunk::downloadChunk(HttpRequester* httpRequester)
 		this->satelliteImage->width, this->satelliteImage->height);
 	free(this->satelliteImage->source);
 	this->satelliteImage->source = (char*)decompressedBuffer;
+
+	if (!this->satelliteImage->CheckImage()) 
+		this->parent->canHaveChildren.store(false);
 
 	this->calculateVertexArrayTextureCoordinants();
 
@@ -367,7 +378,7 @@ void Chunk::calculateAllDetails()
 
 	if (this->childExist) {
 
-		if (this->isChildrenToRemove()) {
+		if (this->isChildrenToRemove() || !this->canHaveChildren) {
 			this->removeChild();
 		}
 

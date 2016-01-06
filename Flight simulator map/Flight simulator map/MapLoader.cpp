@@ -44,7 +44,7 @@ void MapLoader::createThread(int count)
 void MapLoader::ThreadFunc()
 {
 	bool exp;
-	HttpRequester *httpRequester = new HttpRequester(Config::Instance->takeConfigString("dataServer"), Config::Instance->takeConfigString("licenceKey"));
+	HttpRequester *httpRequester = NULL;
 
 	while (true) {
 		exp = false;

@@ -39,6 +39,8 @@ void Texture::Decompress(char* source, long unsigned int size, unsigned char*& b
 	tjDestroy(jpegDecompressor);
 }
 
+
+
 Texture::Texture()
 {
 	this->id = 0;

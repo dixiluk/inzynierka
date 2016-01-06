@@ -15,6 +15,7 @@ private:
 	Chunk* parent;
 	Chunk* child[4];
 	bool childExist;
+	std::atomic<bool> canHaveChildren;
 	bool isLoaded;
 	bool toRemove;
 	std::atomic<bool> isDownloaded;

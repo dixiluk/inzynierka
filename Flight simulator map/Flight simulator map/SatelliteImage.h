@@ -19,5 +19,6 @@ public:
 	void saveOnDrive(std::string path);
 	static SatelliteImage *readFromDrive(std::string path, std::string metadataPath);
 	~SatelliteImage();
+	bool CheckImage();
 };
 

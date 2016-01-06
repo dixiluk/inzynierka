@@ -28,7 +28,7 @@ int main(int argc, char * argv[])
 	HttpRequester::prefImageSizeX = Config::Instance->takeConfigDouble("prefImageSizeX");
 	HttpRequester::prefImageSizeY = Config::Instance->takeConfigDouble("prefImageSizeY");
 	Chunk::saveDataOnDrive = Config::Instance->takeConfigBool("saveDataOnDrive");
-	MapLoader::Instance->createThread(50);
+	MapLoader::Instance->createThread((int)Config::Instance->takeConfigDouble("downloadThread"));
 	Chunk::levelOfDetailCheckAccuracy = Config::Instance->takeConfigDouble("levelOfDetailCheckAccuracy");
 	Chunk::levelOfDetailCheckPresent = 0;
 	
@@ -37,7 +37,7 @@ int main(int argc, char * argv[])
 	
 	Chunk::Shader = new ChunkShader();
 
-	float hight = 100;
+	float hight = 1;
 	//Coordinate cameraCordinate = Coordinate(PI2*(52.23 + 90) / 360, PI2*(21 + 180) / 360);
 	Coordinate cameraCordinate = Coordinate(PI2*(49.36 + 90) / 360, PI2*(20 + 180) / 360);
 	//Coordinate cameraCordinate = Coordinate(PI2*(27.98327226 + 90) / 360, PI2*(86.93383789 + 180) / 360); //himalaje
