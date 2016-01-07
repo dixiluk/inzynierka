@@ -21,7 +21,7 @@ Texture::Texture(unsigned char* source, int width, int height)
 
 Texture::~Texture()
 {
-
+	glDeleteTextures(1, &this->id);
 }
 
 void Texture::Decompress(char* source, long unsigned int size, unsigned char*& buffer, int& width, int& height) {
@@ -29,13 +29,15 @@ void Texture::Decompress(char* source, long unsigned int size, unsigned char*& b
 
 	tjhandle jpegDecompressor = tjInitDecompress();
 
+	char * secondBuffer = (char*)malloc(size);
+	memcpy(secondBuffer, source, size);
+
 	tjDecompressHeader2(jpegDecompressor, (unsigned char*)source, size, &width, &height, &jpegSubsamp);
 
 	buffer = (unsigned char*)malloc(width*height * 4); //!< will contain the decompressed image
-	char * secondBuffer = (char*)malloc(size);
-	memcpy(secondBuffer, source, size);
+	
 	tjDecompress2(jpegDecompressor, (unsigned char*)secondBuffer, size, buffer, width, 0, height, TJPF_RGBX, TJFLAG_FASTDCT | TJFLAG_BOTTOMUP);
-
+	free(secondBuffer);
 	tjDestroy(jpegDecompressor);
 }
 

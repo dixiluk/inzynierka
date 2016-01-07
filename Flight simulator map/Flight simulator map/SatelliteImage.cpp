@@ -17,8 +17,7 @@ SatelliteImage::SatelliteImage(char* source, int sourceSize, SatelliteImageMetad
 void SatelliteImage::saveOnDrive(std::string path)
 {
 	FILE* file = fopen(path.c_str(), "wb");
-	if (file == NULL)
-		std::cout << "error" << std::endl;
+	if (file == NULL);
 	fwrite(this->source, 1, this->sourceSize, file);
 	fclose(file);
 }
@@ -32,7 +31,6 @@ SatelliteImage *SatelliteImage::readFromDrive(std::string path, std::string meta
 	FILE* file = fopen(path.c_str(), "rb");
 
 	if (file == NULL) {
-		std::cout << "error" << std::endl;
 		return NULL;
 	}
 
@@ -42,14 +40,10 @@ SatelliteImage *SatelliteImage::readFromDrive(std::string path, std::string meta
 
 
 	buffer = (char*)malloc(sizeof(char)*lSize);
-	if (buffer == NULL) {
-		std::cout << "error" << std::endl;
-		return NULL;
-	}
 
 	result = fread(buffer, 1, lSize, file);
 	if (result != lSize) {
-		std::cout << "error" << std::endl;
+		free(buffer);
 		return NULL;
 	}
 
@@ -66,10 +60,9 @@ SatelliteImage *SatelliteImage::readFromDrive(std::string path, std::string meta
 
 SatelliteImage::~SatelliteImage()
 {
-	if(this->texture!=NULL)
-		delete this->texture;
-	if(this->metadata)
-		delete this->metadata;
+	delete this->texture;
+	delete this->metadata;
+
 }
 
 bool SatelliteImage::CheckImage() {
@@ -81,7 +74,7 @@ bool SatelliteImage::CheckImage() {
 			counter++;
 	}
 	double filled = (double)counter / (this->width*this->height);
-	if(filled>0.2)
+	if(filled>0.1)
 		return false;
 	return true;
 }

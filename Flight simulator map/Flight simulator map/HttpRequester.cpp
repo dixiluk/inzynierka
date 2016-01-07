@@ -25,7 +25,7 @@ HttpRequester::HttpRequester(std::string server, std::string key)
 		SockAddr.sin_family = AF_INET;
 		SockAddr.sin_addr.s_addr = *((unsigned long*)host->h_addr);
 		if (connect(this->connectionSocket, (SOCKADDR*)(&SockAddr), sizeof(SockAddr)) != 0) {
-			std::cout << "Could not connect! Recconecting..." << GetLastError() << std::endl;
+			//std::cout << "Could not connect! Recconecting..." << GetLastError() << std::endl;
 			continue;
 		}
 		break;
@@ -48,7 +48,7 @@ bool HttpRequester::reconnect(bool force)
 		SockAddr.sin_family = AF_INET;
 		SockAddr.sin_addr.s_addr = *((unsigned long*)host->h_addr);
 		if (connect(this->connectionSocket, (SOCKADDR*)(&SockAddr), sizeof(SockAddr)) != 0) {
-			std::cout << "Could not connect! Recconecting..." << GetLastError() << std::endl;
+			//std::cout << "Could not connect! Recconecting..." << GetLastError() << std::endl;
 			if (force)
 				continue;
 			else
@@ -67,7 +67,7 @@ ElevationData* HttpRequester::getElevationData(Coordinate southWest, Coordinate 
 		this->header.clear();
 
 		requestBuffer = (char*)malloc(4086);
-		sprintf(requestBuffer, ElevationMessage, southWest.latitude, southWest.longtitude, northEast.latitude, northEast.longtitude, ElevationData::rows, ElevationData::cols, height.c_str(), key.c_str());
+		sprintf(requestBuffer, ElevationMessage, southWest.latitude, southWest.longitude, northEast.latitude, northEast.longitude, ElevationData::rows, ElevationData::cols, height.c_str(), key.c_str());
 		if (send(this->connectionSocket, requestBuffer, strlen(requestBuffer), 0) <= 0)
 		{
 			this->reconnect();
@@ -111,7 +111,6 @@ ElevationData* HttpRequester::getElevationData(Coordinate southWest, Coordinate 
 			}
 			source.append(buffer, receivedLength);
 		} while (sum != contentLength);
-
 		return new ElevationData(southWest, northEast, source, sum);
 	}
 }
@@ -157,11 +156,10 @@ bool HttpRequester::receiveChunkSource()
 	return true;
 }
 
-SatelliteImage* HttpRequester::getSatelliteImageSource(Chunk* chunk)
+SatelliteImage* HttpRequester::getSatelliteImageSource(Chunk* chunk, int sizeX, int sizeY)
 {
 	//http://dev.virtualearth.net/REST/v1/Imagery/Map/Aerial/47.619048,-122.35384/5?&mapSize=600,700&format=jpeg&mapMetadata=0&key=AvLyPxYc5C5cPPAwZdsrhI1c4sT9FJo1AUVym7tgs-IvZzo720jrDdn-ZG-0Jrb9
-	int sizeX = prefImageSizeX;
-	int sizeY = prefImageSizeY;
+
 	while (true) {
 		string markers;
 		char * buffer = (char*)malloc(1024);
@@ -170,30 +168,24 @@ SatelliteImage* HttpRequester::getSatelliteImageSource(Chunk* chunk)
 		Coordinate cord = chunk->southWest;
 
 		for (int row = 0; row < ElevationData::rows; row++) {
-			sprintf(buffer, "pp=%f,%f;21&", cord.latitude, chunk->southWest.longtitude);
+			sprintf(buffer, "pp=%f,%f;21&", cord.latitude, chunk->southWest.longitude);
 			markers += std::string(buffer);
 			cord.latitude += stepLatitude;
 		}
-		sprintf(buffer, "pp=%f,%f;21&", chunk->northEast.latitude, chunk->northEast.longtitude);
+		sprintf(buffer, "pp=%f,%f;21&", chunk->northEast.latitude, chunk->northEast.longitude);
 		markers += std::string(buffer);
 		free(buffer);
 
 		SatelliteImageMetadata* metaData = this->getSatelliteImageMetadata(chunk->southWest, chunk->northEast, sizeX, sizeY, imageFormat, markers, ElevationData::rows + 1);
-		//	std::cout << sizeY << " 1  " << (chunk->northEast.latitude - chunk->southWest.latitude) / (metaData->northEast.latitude - metaData->southWest.latitude) << "  ";
-		//	std::cout << sizeX << " 1  " << (chunk->northEast.longtitude - chunk->southWest.longtitude) / (metaData->northEast.longtitude - metaData->southWest.longtitude) << std::endl;
 		sizeX = metaData->sizeX();
 		sizeY = metaData->sizeY();
-		//metaData = this->getSatelliteImageMetadata(chunk->southWest, chunk->northEast, sizeX, sizeY, imageFormat,"",0);
-
-		//std::cout << sizeY << "   " << (chunk->northEast.latitude - chunk->southWest.latitude) / (metaData->northEast.latitude - metaData->southWest.latitude) << "  ";
-		//std::cout << sizeX << "   " << (chunk->northEast.longtitude - chunk->southWest.longtitude) / (metaData->northEast.longtitude - metaData->southWest.longtitude) << std::endl;
 		requestBuffer = (char*)malloc(4086);
 
 		source.clear();
 		header.clear();
 
-		// lat, long, zoom, sizex, sizey, format, metadata, key
-		sprintf(requestBuffer, SateliteMessage, chunk->southWest.latitude, chunk->southWest.longtitude, chunk->northEast.latitude, chunk->northEast.longtitude, sizeX, sizeY, imageFormat, 0, this->key.c_str(), this->server.c_str());
+		
+		sprintf(requestBuffer, SateliteMessage, chunk->southWest.latitude, chunk->southWest.longitude, chunk->northEast.latitude, chunk->northEast.longitude, sizeX, sizeY, imageFormat, 0, this->key.c_str(), this->server.c_str());
 
 		if (send(this->connectionSocket, requestBuffer, strlen(requestBuffer), 0) <= 0)
 		{
@@ -208,7 +200,7 @@ SatelliteImage* HttpRequester::getSatelliteImageSource(Chunk* chunk)
 			continue;
 		if (!receiveChunkSource())
 			continue;
-		char* copy = new char[this->sourceSize]();
+		char* copy =(char*)malloc(this->sourceSize);
 		source.copy(copy, this->sourceSize, 0);
 
 		return new SatelliteImage(copy, sourceSize, metaData);
@@ -223,7 +215,7 @@ SatelliteImageMetadata* HttpRequester::getSatelliteImageMetadata(Coordinate sout
 		this->header.clear();
 		this->source.clear();
 		// lat, long, lat, long, sizex, sizey, format, metadata,markers, key
-		sprintf(requestBuffer, SateliteMetadataMessage, southWest.latitude, southWest.longtitude, northEast.latitude, northEast.longtitude, sizeX, sizeY, format.c_str(), 1, markers.c_str(), this->key.c_str(), this->server.c_str());
+		sprintf(requestBuffer, SateliteMetadataMessage, southWest.latitude, southWest.longitude, northEast.latitude, northEast.longitude, sizeX, sizeY, format.c_str(), 1, markers.c_str(), this->key.c_str(), this->server.c_str());
 
 		if (send(this->connectionSocket, requestBuffer, strlen(requestBuffer), 0) <= 0)
 		{
@@ -238,8 +230,10 @@ SatelliteImageMetadata* HttpRequester::getSatelliteImageMetadata(Coordinate sout
 		if (!receiveChunkSource())
 			continue;
 
-		char* copy = (char*)malloc(this->sourceSize);
+		/*char* copy = (char*)malloc(this->sourceSize);
 		source.copy(copy, this->sourceSize, 0);
-		return new SatelliteImageMetadata(copy, this->sourceSize);
+		copy[this->sourceSize] = 0;*/
+		std::string copy = std::string(source);
+		return new SatelliteImageMetadata(copy, copy.size());
 	}
 }

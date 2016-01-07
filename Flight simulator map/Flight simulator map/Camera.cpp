@@ -18,7 +18,7 @@ Camera::Camera(glm::vec3 position, glm::vec3 direction, glm::vec3 axis)
 
 	this->setPerspective(45.0,
 		(GLfloat)GraphicalEngine::Instance->resolution.Width
-		/ GraphicalEngine::Instance->resolution.Height, 0.05, 500);
+		/ GraphicalEngine::Instance->resolution.Height, 0.05, 50);
 	this->setupCamera();
 }
 
@@ -34,7 +34,6 @@ void Camera::CameraMotion(GLint x, GLint y)	//funkcja obracanie kamery myszka
 		&& (y == GraphicalEngine::Instance->resolution.Height / 2 + 1 || y == GraphicalEngine::Instance->resolution.Height / 2 - 1 || y == GraphicalEngine::Instance->resolution.Height / 2)) return;
 	ActiveCamera->pitch += ((GLdouble)x - GraphicalEngine::Instance->resolution.Width / 2) / 1000;
 	ActiveCamera->yaw += ((GLdouble)y - GraphicalEngine::Instance->resolution.Height / 2) / 1000;
-	//ActiveCamera->yaw = 0;
 	if (ActiveCamera->pitch > PI2) ActiveCamera->pitch = ActiveCamera->pitch - PI2;
 	if (ActiveCamera->pitch < 0) ActiveCamera->pitch = ActiveCamera->pitch + PI2;
 
@@ -44,7 +43,19 @@ void Camera::CameraMotion(GLint x, GLint y)	//funkcja obracanie kamery myszka
 	glm::mat4 rotationMatrix1, rotationMatrix2;
 
 	glm::vec3 toMiddle = glm::normalize(Camera::ActiveCamera->position);
-	glm::vec3 vec1 = glm::cross(toMiddle, glm::vec3(0, 1, 0));
+
+	glm::vec3 vec1;
+
+	double longitude = atan2(Camera::ActiveCamera->position.x, Camera::ActiveCamera->position.y);
+
+	if (longitude > 0) longitude -= PI2 / 2;
+	else  longitude += PI2 / 2;
+	longitude = (longitude * 360 / PI2);
+	if(longitude>-135 && longitude<-45 || longitude<135 && longitude>45)
+		vec1 = glm::cross(toMiddle, glm::vec3(0, 1, 0));
+	else
+		vec1 = glm::cross(toMiddle, glm::vec3(1, 0, 0));
+
 	glm::vec3 vec2 = glm::cross(toMiddle, vec1);
 
 	rotationMatrix1 = glm::rotate(glm::mat4(1), (float)ActiveCamera->yaw, vec2);
@@ -54,24 +65,11 @@ void Camera::CameraMotion(GLint x, GLint y)	//funkcja obracanie kamery myszka
 	vec1 = glm::vec3(rotationMatrix2* glm::vec4(vec1, 1));
 
 	
-		double distanceCameraFromCenter = glm::distance(Camera::ActiveCamera->position, glm::vec3(0, 0, 0));
-	double latitude = acos(Camera::ActiveCamera->position.z / distanceCameraFromCenter);
-	double longtitude = atan2(Camera::ActiveCamera->position.x, Camera::ActiveCamera->position.y);
 	
 	ActiveCamera->axis = toMiddle;
 	ActiveCamera->direction = vec1;
 
-	/*
-	ActiveCamera->direction.z = -sin(ActiveCamera->pitch)*sin(ActiveCamera->yaw);
-	ActiveCamera->direction.x = cos(ActiveCamera->pitch)*sin(ActiveCamera->yaw);
-	ActiveCamera->direction.y = cos(ActiveCamera->yaw);*/
-	
-
-	std::cout << ActiveCamera->pitch << " , " << ActiveCamera->yaw << std::endl;
-	std::cout << ActiveCamera->direction.x << " , " << ActiveCamera->direction.y << " , " << ActiveCamera->direction.z << std::endl;
-
 	glutWarpPointer(GraphicalEngine::Instance->resolution.Width / 2, GraphicalEngine::Instance->resolution.Height / 2);
-	ActiveCamera->setupCamera();
 }
 
 
@@ -124,7 +122,7 @@ void Camera::setZNear(GLdouble zNear){ //wartosc minimalna z ktorej widac
 	this->viewProjectionMatrix = this->projectionMatrix * this->viewMatrix;
 }
 
-void Camera::setPerspective(GLdouble fovY, GLdouble aspectRatio, GLdouble zNear, GLdouble zFar)  //ustawi prespektywe
+void Camera::setPerspective(GLdouble fovY, GLdouble aspectRatio, GLdouble zNear, GLdouble zFar)  //ustawi macierz prespektywy
 {
 	this->fovY = fovY;
 	this->aspectRatio = aspectRatio;
@@ -160,11 +158,11 @@ void Camera::moveForward(float power) {
 		double distanceNew = glm::distance(cameraNewPosition, glm::vec3(0, 0, 0));
 		double distance = glm::distance(this->position, glm::vec3(0, 0, 0));
 		
-/*
+
 		if (((this->hight + distanceNew - distance) < this->minHight) && distanceNew<distance)
 			return;
 		if (((this->hight + distanceNew - distance) > this->maxHight) && distanceNew>distance)
-			return;*/
+			return;
 		this->position = cameraNewPosition;
 }
 

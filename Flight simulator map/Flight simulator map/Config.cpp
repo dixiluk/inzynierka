@@ -31,7 +31,7 @@ void Config::loadFile() {
 				line2 = line;
 				size_t position = line.find("=");
 				if (position <= 0 || position > line.size()) {
-					std::cout << "config error";
+					//std::cout << "config error";
 					return;
 				}
 				line2.erase(0, position + 1);
@@ -42,7 +42,7 @@ void Config::loadFile() {
 			plik.close();	}
 	else {
 
-		std::cout << "config error";
+		//std::cout << "config error";
 	}
 	return;
 }
@@ -60,7 +60,7 @@ double Config::takeConfigDouble(std::string parameterName) {
 		return atof((char*)parameter.c_str());
 	}
 	catch (std::string e) {
-		std::cout << "config error";
+		//std::cout << "config error";
 	}
 }
 
@@ -74,6 +74,6 @@ bool Config::takeConfigBool(std::string parameterName)
 
 	}
 	catch (std::string e) {
-		std::cout << "config error";
+		//std::cout << "config error";
 	}
 }

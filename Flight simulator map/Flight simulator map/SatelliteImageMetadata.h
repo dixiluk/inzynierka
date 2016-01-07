@@ -5,20 +5,22 @@
 class SatelliteImageMetadata
 {
 public:
-	SatelliteImageMetadata(std::string source,int sourceSize);
-	~SatelliteImageMetadata();
 	int sourceSize;
 	std::string source;
-	void readPositions();
+	short *markers[2];
+	short imageHeight, imageWidth;
+
+	SatelliteImageMetadata(std::string source,int sourceSize);
+	~SatelliteImageMetadata();
+	short markersCount;
+	Coordinate southWest, northEast;;
 	void readImageSize();
 	void readMarkers();
 	short sizeX();
 	short sizeY();
-	short *markers[2];
-	short markersCount;
-	Coordinate southWest, northEast;
-	short imageHeight, imageWidth;
 	void saveOnDrive(std::string path);
+
+	void SatelliteImageMetadata::readPositions();
 	static SatelliteImageMetadata* readFromDrive(std::string path);
 	
 };

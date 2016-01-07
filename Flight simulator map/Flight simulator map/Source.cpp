@@ -11,13 +11,24 @@
 #include "SatelliteImageMetadata.h"
 #include "MapLoader.h"
 
-int main(int argc, char * argv[])
-{	
+int main(int argc, char * argv[]){
+
+	float hight;
+	Coordinate cameraCordinate;
+	if (argc == 4){
+		cameraCordinate = Coordinate(PI2*(atof(argv[1]) + 90) / 360, PI2*(atof(argv[2]) + 180) / 360);
+		hight = atof(argv[3]);
+	}
+	else {
+		hight = 2;
+		cameraCordinate = Coordinate(PI2*(49.25 + 90) / 360, PI2*(19.95 + 180) / 360);
+	}
+	Sleep(5545);
 	MapLoader::Instance = new MapLoader();
 
 	WSADATA wsaData;
 	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-		std::cout << "WSAStartup failed.\n";
+		//std::cout << "WSAStartup failed.\n";
 		system("pause");
 		exit(-1);
 	}
@@ -37,19 +48,15 @@ int main(int argc, char * argv[])
 	
 	Chunk::Shader = new ChunkShader();
 
-	float hight = 1;
-	//Coordinate cameraCordinate = Coordinate(PI2*(52.23 + 90) / 360, PI2*(21 + 180) / 360);
-	Coordinate cameraCordinate = Coordinate(PI2*(49.36 + 90) / 360, PI2*(20 + 180) / 360);
-	//Coordinate cameraCordinate = Coordinate(PI2*(27.98327226 + 90) / 360, PI2*(86.93383789 + 180) / 360); //himalaje
 	Camera *camera = new Camera(glm::vec3(
-		(float)(earthRadius + hight)*sin(cameraCordinate.longtitude)*sin(cameraCordinate.latitude),
-		(float)(earthRadius + hight)*cos(cameraCordinate.longtitude)*sin(cameraCordinate.latitude),
+		(float)(earthRadius + hight)*sin(cameraCordinate.longitude)*sin(cameraCordinate.latitude),
+		(float)(earthRadius + hight)*cos(cameraCordinate.longitude)*sin(cameraCordinate.latitude),
 		(float)(earthRadius + hight)*cos(cameraCordinate.latitude)));
 	camera->setActive();
 	Camera::ActiveCamera->maxHight= Config::Instance->takeConfigDouble("maxCameraHight");
 	Camera::ActiveCamera->minHight= Config::Instance->takeConfigDouble("minCameraHight");
 	Camera::ActiveCamera->speed= Config::Instance->takeConfigDouble("cameraSpeed");
-	MapLoader::createMap();
+	MapLoader::createMap(); 
 
 	glutMainLoop();
 

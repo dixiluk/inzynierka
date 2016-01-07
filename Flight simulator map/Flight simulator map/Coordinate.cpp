@@ -6,9 +6,9 @@ Coordinate::Coordinate()
 {
 }
 
-Coordinate::Coordinate(double latitude, double longtitude) {
+Coordinate::Coordinate(double latitude, double longitude) {
 	this->latitude = latitude;
-	this->longtitude = longtitude;
+	this->longitude = longitude;
 }
 
 Coordinate::~Coordinate()
@@ -17,7 +17,7 @@ Coordinate::~Coordinate()
 
 
 Coordinate Coordinate::calculateMidle(Coordinate cord1, Coordinate cord2) {	
-	double newLatitude, newLongtitude,smalerLatitude,biggerLatitude,smalerLongtitude,biggerLongtitude;
+	double newLatitude, newlongitude,smalerLatitude,biggerLatitude,smalerlongitude,biggerlongitude;
 	if (cord1.latitude > cord2.latitude) {
 		smalerLatitude = cord2.latitude;
 		biggerLatitude = cord1.latitude;
@@ -26,19 +26,14 @@ Coordinate Coordinate::calculateMidle(Coordinate cord1, Coordinate cord2) {
 		smalerLatitude = cord1.latitude;
 		biggerLatitude = cord2.latitude;
 	}
-	if (cord1.longtitude > cord2.longtitude) {
-		smalerLongtitude = cord2.longtitude;
-		biggerLongtitude = cord1.longtitude;
+	if (cord1.longitude > cord2.longitude) {
+		smalerlongitude = cord2.longitude;
+		biggerlongitude = cord1.longitude;
 	}
 	else {
-		smalerLongtitude = cord1.longtitude;
-		biggerLongtitude = cord2.longtitude;
+		smalerlongitude = cord1.longitude;
+		biggerlongitude = cord2.longitude;
 	}
 
-	return Coordinate(smalerLatitude + (biggerLatitude - smalerLatitude) / 2, smalerLongtitude + (biggerLongtitude - smalerLongtitude) / 2);
-}
-
-Coordinate Coordinate::size(Coordinate cord) {
-	if (this->latitude > 0);
-	return Coordinate(1, 1);
+	return Coordinate(smalerLatitude + (biggerLatitude - smalerLatitude) / 2, smalerlongitude + (biggerlongitude - smalerlongitude) / 2);
 }

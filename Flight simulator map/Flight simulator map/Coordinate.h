@@ -2,11 +2,10 @@
 class Coordinate
 {
 public:
-	double latitude, longtitude;
+	double latitude, longitude;
 	Coordinate();
-	Coordinate(double latitude, double longtitude);
-	static Coordinate calculateMidle(Coordinate cord1, Coordinate cord2);
-	Coordinate size(Coordinate cord);
+	Coordinate(double latitude, double longitude);
 	~Coordinate();
+	static Coordinate calculateMidle(Coordinate cord1, Coordinate cord2);
 };
 

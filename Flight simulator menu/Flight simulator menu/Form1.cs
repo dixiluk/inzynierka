@@ -75,9 +75,9 @@ namespace Flight_simulator_menu
 
         private void zakopaneButton_Click(object sender, EventArgs e)
         {
-            latitudeTextBox.Text = "49.3";
+            latitudeTextBox.Text = "49.25";
             longitudeTextBox.Text = "19.95";
-            hightTextBox.Text = "1";
+            hightTextBox.Text = "2";
         }
 
         private void himalajeButton_Click(object sender, EventArgs e)
@@ -103,6 +103,11 @@ namespace Flight_simulator_menu
             hightTextBox.Text = "2";
         }
 
-      
+        private void runButton_Click(object sender, EventArgs e)
+        {
+
+        System.Diagnostics.Process.Start("Flight simulator map.exe", latitudeTextBox.Text+" "+ longitudeTextBox.Text + " " + hightTextBox.Text);
+        Application.Exit();
+        }
     }
 }

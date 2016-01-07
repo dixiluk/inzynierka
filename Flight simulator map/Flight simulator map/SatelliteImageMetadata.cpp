@@ -4,9 +4,10 @@
 #include <Windows.h>
 
 #include <errno.h>
-SatelliteImageMetadata::SatelliteImageMetadata(std::string source, int sourceSize)
+SatelliteImageMetadata::SatelliteImageMetadata(std:: string source, int sourceSize)
 {
-	this->source = source;
+	this->source =source;
+	
 	this->readPositions();
 	this->readImageSize();
 	this->readMarkers();
@@ -16,7 +17,10 @@ SatelliteImageMetadata::SatelliteImageMetadata(std::string source, int sourceSiz
 
 SatelliteImageMetadata::~SatelliteImageMetadata()
 {
+	delete[] markers[0];
+	delete[] markers[1];
 	this->source.clear();
+
 }
 
 void SatelliteImageMetadata::readPositions() {
@@ -29,11 +33,11 @@ void SatelliteImageMetadata::readPositions() {
 	std::getline(ss, source, ',');
 	this->southWest.latitude = atof(source.c_str());
 	std::getline(ss, source, ',');
-	this->southWest.longtitude = atof(source.c_str());
+	this->southWest.longitude = atof(source.c_str());
 	std::getline(ss, source, ',');
 	this->northEast.latitude = atof(source.c_str());
 	std::getline(ss, source, ',');
-	this->northEast.longtitude = atof(source.c_str());
+	this->northEast.longitude = atof(source.c_str());
 
 }
 
@@ -96,7 +100,6 @@ void SatelliteImageMetadata::readMarkers()
 
 short SatelliteImageMetadata::sizeX()
 {
-	std::cout << this->markers[0][this->markersCount - 1] << std::endl;
 	return (this->markers[0][this->markersCount-1]-this->markers[0][0])+1;
 }
 
@@ -107,8 +110,7 @@ short SatelliteImageMetadata::sizeY()
 void SatelliteImageMetadata::saveOnDrive(std::string path)
 {
 	FILE* file = fopen(path.c_str(), "wb");
-	if (file == NULL)
-		std::cout << "error" << std::endl;
+	if (file == NULL);
 	fwrite(this->source.c_str(), 1, this->sourceSize, file);
 	fclose(file);
 }
@@ -122,7 +124,6 @@ SatelliteImageMetadata* SatelliteImageMetadata::readFromDrive(std::string path)
 	FILE* file = fopen(path.c_str(), "rb");
 
 	if (file == NULL) {
-		std::cout << "error" << errno<< std::endl;
 		return NULL;
 	}
 
@@ -131,18 +132,16 @@ SatelliteImageMetadata* SatelliteImageMetadata::readFromDrive(std::string path)
 	rewind(file);
 
 
-	buffer = (char*)malloc(sizeof(char)*lSize);
-	if (buffer == NULL) {
-		std::cout << "error" << std::endl;
-		return NULL;
-	}
+	buffer = (char*)malloc(lSize+1);
 
 	result = fread(buffer, 1, lSize, file);
 	if (result != lSize) {
-		std::cout << "error" << std::endl;
+		free(buffer);
 		return NULL;
 	}
-
+	buffer[lSize] = 0;
 	fclose(file);
-	return new SatelliteImageMetadata(buffer, lSize);
+	SatelliteImageMetadata* metadata = new SatelliteImageMetadata(std::string(buffer), lSize);
+	free(buffer);
+	return metadata;
 }

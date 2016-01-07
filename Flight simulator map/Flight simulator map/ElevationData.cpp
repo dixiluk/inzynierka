@@ -19,15 +19,15 @@ ElevationData::ElevationData(Coordinate southWest, Coordinate northEast, std::st
 
 
 	double stepLatitude = (northEast.latitude - southWest.latitude) / (rows - 1);
-	double stepLongitude = (northEast.longtitude - southWest.longtitude) / (cols - 1);
+	double stepLongitude = (northEast.longitude - southWest.longitude) / (cols - 1);
 	Coordinate cord = southWest;
 	for (int row = 0; row < rows; row++) {
 		this->coordinates[row] = new Coordinate[cols];
 		for (int col = 0; col < cols; col++) {
-			this->coordinates[row][col] = Coordinate(PI2*(cord.latitude + 90) / 360, PI2*(cord.longtitude + 180) / 360);
-			cord.longtitude += stepLongitude;
+			this->coordinates[row][col] = Coordinate(PI2*(cord.latitude + 90) / 360, PI2*(cord.longitude + 180) / 360);
+			cord.longitude += stepLongitude;
 		}
-		cord.longtitude = southWest.longtitude;
+		cord.longitude = southWest.longitude;
 		cord.latitude += stepLatitude;
 	}
 
@@ -61,15 +61,18 @@ ElevationData::ElevationData(Coordinate southWest, Coordinate northEast, std::st
 
 ElevationData::~ElevationData()
 {
-	delete this->heights;
-	delete this->coordinates;
+	for (int i = 0; i < this->rows; i++)
+		delete[] this->heights[i];
+	for (int i = 0; i < this->rows; i++)
+		delete[] this->coordinates[i];
+	
 }
 
 void ElevationData::saveOnDrive(std::string path)
 {
 	FILE* file = fopen(path.c_str(), "wb");
 	if (file == NULL)
-		std::cout << "error saveOnDrive" << std::endl;
+		//std::cout << "error saveOnDrive" << std::endl;
 	fwrite(this->source.c_str(), 1, this->sourceSize, file);
 	fclose(file);
 }
@@ -83,7 +86,7 @@ ElevationData* ElevationData::readFromDrive(Coordinate southWest, Coordinate nor
 	FILE* file = fopen(path.c_str(), "rb");
 
 	if (file == NULL) {
-		std::cout << "error readFromDrive" << std::endl;
+		//std::cout << "error readFromDrive" << std::endl;
 		return NULL;
 	}
 
@@ -92,19 +95,18 @@ ElevationData* ElevationData::readFromDrive(Coordinate southWest, Coordinate nor
 	rewind(file);
 
 
-	buffer = (char*)malloc(sizeof(char)*lSize);
-	if (buffer == NULL) {
-		std::cout << "error readFromDrive" << std::endl;
-		return NULL;
-	}
+	buffer = (char*)malloc(lSize+1);
+	
 
 	result = fread(buffer, 1, lSize, file);
 	if (result != lSize) {
-		std::cout << "error readFromDrive" << std::endl;
+		free(buffer);
 		return NULL;
 	}
-
-
+	buffer[lSize] = 0;
+	std::string copy = std::string(buffer);
+	free(buffer);
+	
 	fclose(file);
-	return new ElevationData(southWest, northEast, buffer, lSize);
+	return new ElevationData(southWest, northEast, copy, lSize);
 }

@@ -25,7 +25,7 @@ public:
 	bool reconnect(bool force = true);
 
 	ElevationData* getElevationData(Coordinate southWest, Coordinate northEast, std::string height);
-	SatelliteImage* getSatelliteImageSource(Chunk* chunk);
+	SatelliteImage* getSatelliteImageSource(Chunk* chunk, int sizeX, int sizeY);
 	SatelliteImageMetadata* getSatelliteImageMetadata(Coordinate southWest, Coordinate northEast, int sizeX, int sizeY, std::string format, std::string markers, short markerCount); // zwracam to jak podasz co? w out_metadata
 private:
 	bool receiveHeader();

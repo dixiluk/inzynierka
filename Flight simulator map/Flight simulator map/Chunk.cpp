@@ -33,7 +33,6 @@ Chunk::Chunk(Coordinate southWest, Coordinate northEast, Chunk* parent)
 		this->child[i] = NULL;
 	}
 	this->childExist = false;
-	this->canHaveChildren = true;
 	this->isDownloaded.store(false);
 	this->isLoaded = false;
 	this->isNowDownloading.store(false);
@@ -44,6 +43,8 @@ Chunk::~Chunk()
 	delete this->satelliteImage;
 	delete this->elevationData;
 	delete[] this->vertices;
+	delete[] this->textureCoordinants;
+	delete[] this->indices;
 }
 
 
@@ -63,16 +64,15 @@ void Chunk::loadLevelOfDetail()
 
 
 void Chunk::createChild() {
-	if (!this->canHaveChildren) return;
 	Coordinate tmpCord = Coordinate::calculateMidle(this->southWest, this->northEast);
 	Coordinate tmpCord1 = this->northEast;
 	tmpCord1.latitude = tmpCord.latitude;
 	Coordinate tmpCord2 = this->northEast;
-	tmpCord2.longtitude = tmpCord.longtitude;
+	tmpCord2.longitude = tmpCord.longitude;
 	Coordinate tmpCord3 = this->southWest;
 	tmpCord3.latitude = tmpCord.latitude;
 	Coordinate tmpCord4 = this->southWest;
-	tmpCord4.longtitude = tmpCord.longtitude;
+	tmpCord4.longitude = tmpCord.longitude;
 
 	this->child[0] = new Chunk(this->southWest, tmpCord, this);
 	this->child[1] = new Chunk(tmpCord4, tmpCord1, this);
@@ -85,7 +85,6 @@ void Chunk::createChild() {
 }
 
 void Chunk::loadChildren() {
-	if (!this->canHaveChildren) return;
 
 	for (int i = 0; i < 4; i++) {
 
@@ -104,10 +103,14 @@ void Chunk::removeChild()
 	}
 	else {
 
-		//delete  this->child[0];
-		//delete  this->child[1];
-		//delete  this->child[2];
-		//delete  this->child[3];
+		delete  this->child[0];
+		this->child[0] = nullptr;
+		delete  this->child[1];
+		this->child[1] = nullptr;
+		delete  this->child[2];
+		this->child[2] = nullptr;
+		delete  this->child[3];
+		this->child[3] = nullptr;
 		this->childExist = false;
 	}
 
@@ -116,7 +119,7 @@ void Chunk::removeChild()
 void Chunk::downloadChunk(HttpRequester* httpRequester)
 {
 	char * bufferName = (char*)malloc(1024);
-	sprintf(bufferName, "Data/%f.%f.%f.%f", this->southWest.latitude, this->southWest.longtitude, this->northEast.latitude, this->northEast.longtitude);
+	sprintf(bufferName, "Data/%f.%f.%f.%f", this->southWest.latitude, this->southWest.longitude, this->northEast.latitude, this->northEast.longitude);
 
 	char * buffer = (char*)malloc(100);
 
@@ -125,7 +128,7 @@ void Chunk::downloadChunk(HttpRequester* httpRequester)
 	this->elevationData = ElevationData::readFromDrive(this->southWest, this->northEast, buffer);
 
 	if (this->elevationData == NULL) {
-		if(httpRequester==NULL) httpRequester = new HttpRequester(Config::Instance->takeConfigString("dataServer"), Config::Instance->takeConfigString("licenceKey"));
+		if (httpRequester == NULL) httpRequester = new HttpRequester(Config::Instance->takeConfigString("dataServer"), Config::Instance->takeConfigString("licenceKey"));
 		this->elevationData = httpRequester->getElevationData(this->southWest, this->northEast, "sealevel");
 		if (this->saveDataOnDrive) {
 			this->elevationData->saveOnDrive(buffer);
@@ -138,8 +141,6 @@ void Chunk::downloadChunk(HttpRequester* httpRequester)
 	this->calculateVertexArrayIndices();
 
 
-	free(buffer);
-	buffer = (char*)malloc(100);
 	sprintf(buffer, "%s.jpeg", bufferName);
 	//sprintf(buffer, "Data/%d.jpeg", this->detailLevel);
 
@@ -151,26 +152,42 @@ void Chunk::downloadChunk(HttpRequester* httpRequester)
 
 	this->satelliteImage = SatelliteImage::readFromDrive(buffer, buffer2);
 
-	if (this->satelliteImage == NULL) {
-		if (httpRequester == NULL) httpRequester = new HttpRequester(Config::Instance->takeConfigString("dataServer"), Config::Instance->takeConfigString("licenceKey"));
-		this->satelliteImage = httpRequester->getSatelliteImageSource(this);
-		if (this->saveDataOnDrive) {
-			this->satelliteImage->saveOnDrive(buffer);
-			this->satelliteImage->metadata->saveOnDrive(buffer2);
+	bool textureAvailable = false;
+
+	int sizeX = HttpRequester::prefImageSizeX;
+	int sizeY = HttpRequester::prefImageSizeY;
+	while (!textureAvailable) {
+		if (this->satelliteImage == NULL) {
+			if (httpRequester == NULL) httpRequester = new HttpRequester(Config::Instance->takeConfigString("dataServer"), Config::Instance->takeConfigString("licenceKey"));
+			this->satelliteImage = httpRequester->getSatelliteImageSource(this, sizeX, sizeY);
+			if (this->saveDataOnDrive) {
+				this->satelliteImage->saveOnDrive(buffer);
+				this->satelliteImage->metadata->saveOnDrive(buffer2);
+			}
+
+
 		}
+		unsigned char* decompressedBuffer;
 
+		Texture::Decompress(this->satelliteImage->source, this->satelliteImage->sourceSize, decompressedBuffer,
+			this->satelliteImage->width, this->satelliteImage->height);
+		free(this->satelliteImage->source);
+		this->satelliteImage->source = (char*)decompressedBuffer;
 
+		if (!this->satelliteImage->CheckImage()) {
+			sizeX = sizeX / 2;
+			sizeY = sizeY / 2;
+			if (sizeX < 80 || sizeY < 80) {
+				textureAvailable = true;
+			}
+			else {
+				delete this->satelliteImage;
+				this->satelliteImage = NULL;
+			}
+		}
+		else
+			textureAvailable = true;
 	}
-	unsigned char* decompressedBuffer;
-
-	Texture::Decompress(this->satelliteImage->source, this->satelliteImage->sourceSize, decompressedBuffer,
-		this->satelliteImage->width, this->satelliteImage->height);
-	free(this->satelliteImage->source);
-	this->satelliteImage->source = (char*)decompressedBuffer;
-
-	if (!this->satelliteImage->CheckImage()) 
-		this->parent->canHaveChildren.store(false);
-
 	this->calculateVertexArrayTextureCoordinants();
 
 
@@ -183,7 +200,6 @@ void Chunk::downloadChunk(HttpRequester* httpRequester)
 
 }
 
-int tmp = 0;
 void Chunk::loadChunk() {
 	std::atomic_thread_fence(std::memory_order_acquire);
 	if (this->childExist) {
@@ -191,7 +207,6 @@ void Chunk::loadChunk() {
 			this->child[i]->loadChunk();
 		}
 		if (this->isDownloaded.load() && !this->isLoaded) {
-			std::cout << tmp++ << std::endl;
 			this->satelliteImage->texture = new Texture((unsigned char*)this->satelliteImage->source, this->satelliteImage->width, this->satelliteImage->height);
 			this->loadVertexArray();
 			this->isLoaded = true;
@@ -199,7 +214,6 @@ void Chunk::loadChunk() {
 	}
 	else {
 		if (this->isDownloaded.load() && !this->isLoaded) {
-			std::cout << tmp++ << std::endl;
 			this->satelliteImage->texture = new Texture((unsigned char*)this->satelliteImage->source, this->satelliteImage->width, this->satelliteImage->height);
 			this->loadVertexArray();
 			this->isLoaded = true;
@@ -269,7 +283,7 @@ bool Chunk::isChildrenLoaded()
 	for (int i = 0; i < 4; i++) {
 		if (!this->child[i]->isLoaded) {//jezeli dziecko nie jest zaladowane			
 			if (!this->child[i]->isChildrenLoaded())	//jezeli dzieci dziecka nie sa zaladowane
-					return false;
+				return false;
 		}
 	}
 	return true;
@@ -303,14 +317,14 @@ double Chunk::distanceFromCamera()
 {
 	double distanceCameraFromCenter = glm::distance(Camera::ActiveCamera->position, glm::vec3(0, 0, 0));
 	double latitude = acos(Camera::ActiveCamera->position.z / distanceCameraFromCenter);
-	double longtitude = atan2(Camera::ActiveCamera->position.x, Camera::ActiveCamera->position.y);
-	if (longtitude > 0) longtitude -= PI2 / 2;
-	else  longtitude += PI2 / 2;
-	Coordinate cameraCoordinates = Coordinate((latitude * 360 / PI2) - 90, (longtitude * 360 / PI2));
+	double longitude = atan2(Camera::ActiveCamera->position.x, Camera::ActiveCamera->position.y);
+	if (longitude > 0) longitude -= PI2 / 2;
+	else  longitude += PI2 / 2;
+	Coordinate cameraCoordinates = Coordinate((latitude * 360 / PI2) - 90, (longitude * 360 / PI2));
 	double minDistance;
 	double tmpDistance;
 	minDistance = glm::distance(glm::vec3(this->vertices[0], this->vertices[1], this->vertices[2]), Camera::ActiveCamera->position);
-	if (cameraCoordinates.latitude > this->southWest.latitude && cameraCoordinates.longtitude > this->southWest.longtitude&&this->northEast.latitude > cameraCoordinates.latitude &&this->northEast.longtitude > cameraCoordinates.longtitude) {
+	if (cameraCoordinates.latitude >= this->southWest.latitude && cameraCoordinates.longitude >= this->southWest.longitude&&this->northEast.latitude >= cameraCoordinates.latitude &&this->northEast.longitude >= cameraCoordinates.longitude) {
 		for (int i = 1; i < ElevationData::rows; i++) {
 			for (int j = 0; j < ElevationData::cols; j++) {
 				tmpDistance = glm::distance(glm::vec3(this->vertices[i*ElevationData::cols * 3 + j * 3], this->vertices[i*ElevationData::cols * 3 + j * 3 + 1], this->vertices[i*ElevationData::cols * 3 + j * 3 + 2]), Camera::ActiveCamera->position);
@@ -353,18 +367,20 @@ double Chunk::distanceFromCamera()
 
 short Chunk::calculatePrefDetailLevel() {
 	double distance = this->distanceFromCamera();
-	if(Camera::ActiveCamera->newHight == -1 || Camera::ActiveCamera->newHight >distance)
+	if (Camera::ActiveCamera->newHight == -1 || Camera::ActiveCamera->newHight >distance)
 		Camera::ActiveCamera->newHight = distance;
 	double cameraDistance = glm::distance(Camera::ActiveCamera->position, glm::vec3(0, 0, 0));
 	double horizont;
-	double minHorizont = (20100 / pow(2, this->detailLevel)) / 2 / ElevationData::cols;
+	double pointDistance = (20100 / pow(2, this->detailLevel)) / ElevationData::cols;
+	double minHorizont = sqrt(pointDistance*pointDistance+ (cameraDistance- earthRadius)*(cameraDistance- earthRadius));
 	if (cameraDistance <= earthRadius)
 		horizont = minHorizont;
 	else
 		horizont = sqrt(cameraDistance*cameraDistance - earthRadius*earthRadius);
 	if (horizont < minHorizont)
 		horizont = minHorizont;
-	if (distance > horizont)return -1;
+	if (distance > horizont)
+		return -1;
 	for (int i = Chunk::LevelOfDetailCount - 1; i >= 0; i--) {
 		if (distance < this->LevelOfDetail[i])
 			return i;
@@ -378,8 +394,9 @@ void Chunk::calculateAllDetails()
 
 	if (this->childExist) {
 
-		if (this->isChildrenToRemove() || !this->canHaveChildren) {
-			this->removeChild();
+		if (this->isChildrenToRemove()) {
+			if (this->isChildrenDowdloaded())
+				this->removeChild();
 		}
 
 		if (this->isChildrenDowdloaded())
@@ -422,7 +439,7 @@ void Chunk::calculateAllDetails()
 }
 
 void Chunk::calculateVertexArrayTextureCoordinants() {
-	this->textureCoordinants = new float[sizeof(GLfloat)*this->verticesCount * 2];
+	this->textureCoordinants = new float[this->verticesCount * 2];
 	float positionY;
 	for (int i = 0; i < ElevationData::rows; i++) {
 		if (i == ElevationData::rows - 1)
@@ -438,14 +455,14 @@ void Chunk::calculateVertexArrayTextureCoordinants() {
 }
 
 void Chunk::calculateVertexArrayVertices() {
-		this->verticesCount = this->elevationData->cols*this->elevationData->rows;
-		this->vertices = new float[sizeof(GLfloat)*this->verticesCount * 3];
-		for (int i = 0; i < ElevationData::rows; i++)
-			for (int j = 0; j < ElevationData::cols; j++) {
-				vertices[i*ElevationData::cols * 3 + j * 3] = (float)(earthRadius + (this->elevationData->heights[i][j] / 1000))*sin(this->elevationData->coordinates[i][j].longtitude)*sin(this->elevationData->coordinates[i][j].latitude);
-				vertices[i*ElevationData::cols * 3 + j * 3 + 1] = (float)(earthRadius + (this->elevationData->heights[i][j] / 1000))*cos(this->elevationData->coordinates[i][j].longtitude)*sin(this->elevationData->coordinates[i][j].latitude);
-				vertices[i*ElevationData::cols * 3 + j * 3 + 2] = (float)(earthRadius + (this->elevationData->heights[i][j]/1000))*cos(this->elevationData->coordinates[i][j].latitude);
-			}
+	this->verticesCount = this->elevationData->cols*this->elevationData->rows;
+	this->vertices = new float[this->verticesCount * 3];
+	for (int i = 0; i < ElevationData::rows; i++)
+		for (int j = 0; j < ElevationData::cols; j++) {
+			vertices[i*ElevationData::cols * 3 + j * 3] = (float)(earthRadius + (this->elevationData->heights[i][j] / 1000))*sin(this->elevationData->coordinates[i][j].longitude)*sin(this->elevationData->coordinates[i][j].latitude);
+			vertices[i*ElevationData::cols * 3 + j * 3 + 1] = (float)(earthRadius + (this->elevationData->heights[i][j] / 1000))*cos(this->elevationData->coordinates[i][j].longitude)*sin(this->elevationData->coordinates[i][j].latitude);
+			vertices[i*ElevationData::cols * 3 + j * 3 + 2] = (float)(earthRadius + (this->elevationData->heights[i][j] / 1000))*cos(this->elevationData->coordinates[i][j].latitude);
+		}
 
 
 }
@@ -453,7 +470,7 @@ void Chunk::calculateVertexArrayVertices() {
 
 void Chunk::calculateVertexArrayIndices() {
 	this->indicesSize = (ElevationData::rows - 1)*(ElevationData::cols - 1) * 4;
-	this->indices = new GLuint[sizeof(GLuint) *indicesSize];
+	this->indices = new GLuint[indicesSize];
 
 	for (int i = 0; i < ElevationData::rows - 1; i++)
 		for (int j = 0; j < ElevationData::cols - 1; j++) {
@@ -509,7 +526,7 @@ void Chunk::createBeginChunks() {
 	if (prefDetailLevel == -1)
 		this->visible = false;
 	else {
-		this->visible = true;	
+		this->visible = true;
 	}
 
 	if (this->elevationData != NULL) {
@@ -519,7 +536,7 @@ void Chunk::createBeginChunks() {
 }
 
 void Chunk::loadBeginChunks() {
-	if(this->childExist)
+	if (this->childExist)
 		for (int i = 0; i < 4; i++) {
 			this->child[i]->loadBeginChunks();
 		}

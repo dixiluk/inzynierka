@@ -11,7 +11,6 @@ public:
 	char* source;
 	long unsigned int sourceSize;
 	int width; int height;
-	char* header;
 	Texture* texture;
 	SatelliteImageMetadata *metadata;
 	SatelliteImage();

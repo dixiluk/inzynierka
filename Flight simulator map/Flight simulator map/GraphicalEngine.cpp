@@ -3,6 +3,7 @@
 #include "DynamicObject.h"
 #include "Chunk.h"
 #include "HttpRequester.h"
+#include "Camera.h"
 #include <thread>
 
 
@@ -105,11 +106,7 @@ void GraphicalEngine::SpecialUpFunc(int key, int x, int y)
 void GraphicalEngine::PassiveMotionFunc(int x, int y) {
 	Camera::CameraMotion(x, y);
 }
-long czasLoadowania = 0;
-long czasKalkulowania = 0;
-long czaswyswietlania = 0; 
-long t1;
-bool calculate = false;
+bool calculate = true;
 void GraphicalEngine::UpdatePass()	//wykonywanie wszystkich obliczen
 {
 	if (GraphicalEngine::Instance->keyboard['w']) {
@@ -119,40 +116,21 @@ void GraphicalEngine::UpdatePass()	//wykonywanie wszystkich obliczen
 	if (GraphicalEngine::Instance->keyboard['s']) {
 		Camera::ActiveCamera->moveForward(-1);
 	}
-
-	if (GraphicalEngine::Instance->keyboard['p'])
-		calculate = true;
-	if (GraphicalEngine::Instance->keyboard['o'])
-		calculate = false;
-
-	if (GraphicalEngine::Instance->keyboard['q']) {
-		std::cout << "czasladowania: " << czasLoadowania << std::endl;
-		std::cout << "czaskalkulowania: " << czasKalkulowania << std::endl;
-		std::cout << "czaswyswietlania: " << czaswyswietlania << std::endl;
-	}
 	Camera::ActiveCamera->setupCamera();
-	t1 = GetTickCount();
 	Instance->worldChunk1->loadChunk();
 	Instance->worldChunk2->loadChunk();
 	Instance->southChunk->loadChunk();
 	Instance->northChunk->loadChunk();
 
 
-	czasLoadowania += GetTickCount() - t1;;
-
-
-	if (calculate) {
-		t1 = GetTickCount();
-		if (Chunk::levelOfDetailCheckPresent >= Chunk::levelOfDetailCheckAccuracy - 1) {
-			Chunk::levelOfDetailCheckPresent = 0;
-			Camera::ActiveCamera->hight = Camera::ActiveCamera->newHight;
-			Camera::ActiveCamera->newHight = -1;
-		}
-		else Chunk::levelOfDetailCheckPresent += 1;
-		Instance->worldChunk1->calculateAllDetails();
-		Instance->worldChunk2->calculateAllDetails();
-		czasKalkulowania += GetTickCount() - t1;
+	if (Chunk::levelOfDetailCheckPresent >= Chunk::levelOfDetailCheckAccuracy - 1) {
+		Chunk::levelOfDetailCheckPresent = 0;
+		Camera::ActiveCamera->hight = Camera::ActiveCamera->newHight;
+		Camera::ActiveCamera->newHight = -1;
 	}
+	else Chunk::levelOfDetailCheckPresent += 1;
+	Instance->worldChunk1->calculateAllDetails();
+	Instance->worldChunk2->calculateAllDetails();
 
 }
 
@@ -162,12 +140,20 @@ void GraphicalEngine::RenderPass() {	//funkcja wykonania rysowania wszystich ele
 	glClearColor(0.2, 0.2, 0.2, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	t1 = GetTickCount();
+	Camera::ActiveCamera->setupCamera();
+	Camera::ActiveCamera->setZFar(10000);
+	Camera::ActiveCamera->setZNear(10);
 	Instance->worldChunk1->draw();
 	Instance->worldChunk2->draw();
 	Instance->southChunk->draw();
 	Instance->northChunk->draw();
-	czaswyswietlania += GetTickCount() - t1;;
+	glClear(GL_DEPTH_BUFFER_BIT);
+	Camera::ActiveCamera->setZFar(10.05);
+	Camera::ActiveCamera->setZNear(0.05);
+	Instance->worldChunk1->draw();
+	Instance->worldChunk2->draw();
+	Instance->southChunk->draw();
+	Instance->northChunk->draw();
 
 
 }
