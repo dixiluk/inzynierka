@@ -1,6 +1,5 @@
 #include "GraphicalEngine.h"
 #include "Camera.h"
-#include "DynamicObject.h"
 #include "Chunk.h"
 #include "HttpRequester.h"
 #include "Camera.h"

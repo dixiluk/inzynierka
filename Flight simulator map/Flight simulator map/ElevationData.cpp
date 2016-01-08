@@ -72,7 +72,7 @@ void ElevationData::saveOnDrive(std::string path)
 {
 	FILE* file = fopen(path.c_str(), "wb");
 	if (file == NULL)
-		//std::cout << "error saveOnDrive" << std::endl;
+		std::cout << "error saveOnDrive" << std::endl;
 	fwrite(this->source.c_str(), 1, this->sourceSize, file);
 	fclose(file);
 }
@@ -86,7 +86,7 @@ ElevationData* ElevationData::readFromDrive(Coordinate southWest, Coordinate nor
 	FILE* file = fopen(path.c_str(), "rb");
 
 	if (file == NULL) {
-		//std::cout << "error readFromDrive" << std::endl;
+		//std::cout << "nie odnaleziono pliku"+path << std::endl;
 		return NULL;
 	}
 

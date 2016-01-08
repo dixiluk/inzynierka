@@ -25,7 +25,7 @@ HttpRequester::HttpRequester(std::string server, std::string key)
 		SockAddr.sin_family = AF_INET;
 		SockAddr.sin_addr.s_addr = *((unsigned long*)host->h_addr);
 		if (connect(this->connectionSocket, (SOCKADDR*)(&SockAddr), sizeof(SockAddr)) != 0) {
-			//std::cout << "Could not connect! Recconecting..." << GetLastError() << std::endl;
+			std::cout << "Could not connect! Recconecting..." << GetLastError() << std::endl;
 			continue;
 		}
 		break;
@@ -48,7 +48,7 @@ bool HttpRequester::reconnect(bool force)
 		SockAddr.sin_family = AF_INET;
 		SockAddr.sin_addr.s_addr = *((unsigned long*)host->h_addr);
 		if (connect(this->connectionSocket, (SOCKADDR*)(&SockAddr), sizeof(SockAddr)) != 0) {
-			//std::cout << "Could not connect! Recconecting..." << GetLastError() << std::endl;
+			std::cout << "Could not connect! Recconecting..." << GetLastError() << std::endl;
 			if (force)
 				continue;
 			else

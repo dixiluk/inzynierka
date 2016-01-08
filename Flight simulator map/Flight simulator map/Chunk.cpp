@@ -257,8 +257,6 @@ void Chunk::draw() {
 void Chunk::loadHttpData() {
 	HttpRequester * connection = new HttpRequester("", "");
 
-	//this->satelliteImage = connection->getSatelliteImageSource()
-	//return;
 }
 
 bool Chunk::isChildrenDowdloaded()

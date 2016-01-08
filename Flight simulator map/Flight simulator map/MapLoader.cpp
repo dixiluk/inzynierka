@@ -27,7 +27,6 @@ void MapLoader::addLowPriorityTask(Chunk * chunk)
 	}
 	std::atomic_thread_fence(std::memory_order_acquire);
 	this->taskList.push_back(chunk);
-	std::cout << this->taskList.size() << std::endl;
 	std::atomic_thread_fence(std::memory_order_release);
 	taskListLocked.store(false);
 }
@@ -57,8 +56,6 @@ void MapLoader::ThreadFunc()
 		if (Instance->taskList.size()>0) {
 			chunk = (*Instance->taskList.begin());
 			Instance->taskList.remove(chunk);
-			//Instance->taskList.pop_front();
-			//std::cout << 
 			std::atomic_thread_fence(std::memory_order_release);			
 		}
 		Instance->taskListLocked.store(false);
@@ -72,7 +69,6 @@ void MapLoader::ThreadFunc()
 			Sleep(100);
 		}
 		std::atomic_thread_fence(std::memory_order_release);
-		//Sleep(50);
 	}
 }
 

@@ -1,7 +1,6 @@
 #include "Camera.h"
 #include <cmath>
 #include <stdio.h>
-#include "GraphicalObject.h"
 
 Camera* Camera::ActiveCamera = 0;
 

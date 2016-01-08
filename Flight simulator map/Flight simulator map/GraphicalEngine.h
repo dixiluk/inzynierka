@@ -1,6 +1,5 @@
 #pragma once
 #include "Environment.h"
-#include "Scene.h"
 #include "Config.h"
 #include "Chunk.h"
 

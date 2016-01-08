@@ -151,17 +151,14 @@
     <ClCompile Include="Config.cpp" />
     <ClCompile Include="Coordinate.cpp" />
     <ClCompile Include="CrashReporter.cpp" />
-    <ClCompile Include="DynamicObject.cpp" />
     <ClCompile Include="ElevationData.cpp" />
     <ClCompile Include="GraphicalEngine.cpp" />
-    <ClCompile Include="GraphicalObject.cpp" />
     <ClCompile Include="HttpRequester.cpp" />
     <ClCompile Include="MapLoader.cpp" />
     <ClCompile Include="SatelliteImage.cpp" />
     <ClCompile Include="SatelliteImageMetadata.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Source.cpp" />
-    <ClCompile Include="StaticObject.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Vertex.cpp" />
   </ItemGroup>
@@ -172,17 +169,14 @@
     <ClInclude Include="Config.h" />
     <ClInclude Include="Coordinate.h" />
     <ClInclude Include="CrashReporter.h" />
-    <ClInclude Include="DynamicObject.h" />
     <ClInclude Include="ElevationData.h" />
     <ClInclude Include="GraphicalEngine.h" />
     <ClInclude Include="Environment.h" />
-    <ClInclude Include="GraphicalObject.h" />
     <ClInclude Include="HttpRequester.h" />
     <ClInclude Include="MapLoader.h" />
     <ClInclude Include="SatelliteImage.h" />
     <ClInclude Include="SatelliteImageMetadata.h" />
     <ClInclude Include="Shader.h" />
-    <ClInclude Include="StaticObject.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Vertex.h" />
   </ItemGroup>
