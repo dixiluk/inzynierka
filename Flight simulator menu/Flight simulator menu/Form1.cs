@@ -109,5 +109,11 @@ namespace Flight_simulator_menu
         System.Diagnostics.Process.Start("Flight simulator map.exe", latitudeTextBox.Text+" "+ longitudeTextBox.Text + " " + hightTextBox.Text);
         Application.Exit();
         }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            mapDownloader downloader = new mapDownloader();
+            downloader.ShowDialog();
+        }
     }
 }

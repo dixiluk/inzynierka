@@ -1,5 +1,4 @@
-﻿//#include "Environment.h"
-//#include "Engine.h"
+﻿
 #include "Environment.h"
 #include "Camera.h"
 #include <iostream>
@@ -48,6 +47,7 @@ int main(int argc, char * argv[]){
 	if (argc == 6) {
 		
 		MapLoader::Instance->downloadMapMode(Coordinate(atof(argv[1]), atof(argv[2])), Coordinate(atof(argv[3]), atof(argv[4])), atof(argv[5]));
+		return 0;
 	}
 	else {
 		hight = 2;
