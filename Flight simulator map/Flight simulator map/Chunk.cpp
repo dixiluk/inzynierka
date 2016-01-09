@@ -192,7 +192,7 @@ void Chunk::downloadChunk(HttpRequester* httpRequester)
 
 
 	this->isDownloaded.store(true);
-
+	this->isNowDownloading.store(false);
 
 	free(bufferName);
 	free(buffer);
@@ -542,4 +542,43 @@ void Chunk::loadBeginChunks() {
 		this->isNowDownloading.store(true);
 		MapLoader::Instance->addLowPriorityTask(this);
 	}
+}
+
+
+void Chunk::downloadModecreateBeginChunks(Coordinate p1, Coordinate p2, short bestLevel) {
+
+	if ((this->southWest.longitude < p1.longitude && this->southWest.latitude < p1.latitude && this->northEast.longitude > p1.longitude && this->northEast.latitude > p1.latitude)
+		|| (this->southWest.longitude < p2.longitude && this->southWest.latitude < p2.latitude && this->northEast.longitude > p2.longitude && this->northEast.latitude > p2.latitude)
+		|| (p1.longitude < this->southWest.longitude && p1.latitude < this->southWest.latitude && p2.longitude > this->southWest.longitude && p2.latitude > this->southWest.latitude)
+		|| (p1.longitude < this->northEast.longitude && p1.latitude < this->northEast.latitude && p2.longitude > this->northEast.longitude && p2.latitude > this->northEast.latitude)
+		) {
+		if (this->detailLevel <= bestLevel) {
+			this->createChild();
+			for (int i = 0; i < 4; i++) {
+				this->child[i]->downloadModecreateBeginChunks(p1, p2, bestLevel);
+			}
+		}
+	}
+}
+
+void Chunk::downloadModeloadBeginChunks() {
+	if (this->childExist)
+		for (int i = 0; i < 4; i++) {
+			this->child[i]->downloadModeloadBeginChunks();
+		}
+	this->isNowDownloading.store(true);
+	MapLoader::Instance->addLowPriorityTask(this);
+}
+
+void Chunk::downloadModeloadClear() {
+	if (this->childExist)
+		for (int i = 0; i < 4; i++) {
+			this->child[i]->downloadModeloadClear();
+		}
+	while (this->isNowDownloading);	//jezeli jeszcze go pobiera to czeka
+	delete this;
+	COORD pos = { 11, 1 };
+	HANDLE output = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleCursorPosition(output, pos);
+	std::cout << MapLoader::Instance->readTaskListCount() << "     " << std::endl;
 }

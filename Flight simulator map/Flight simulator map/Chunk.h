@@ -60,6 +60,9 @@ public:
 	bool Chunk::isChildrenLoaded();
 	void createBeginChunks();
 	void loadBeginChunks();
+	void downloadModecreateBeginChunks(Coordinate p1, Coordinate p2, short bestLevel);
+	void downloadModeloadBeginChunks();
+	void downloadModeloadClear();
 	void loadChildren();
 	void calculateVertexArrayTextureCoordinants();
 	void calculateVertexArrayVertices();

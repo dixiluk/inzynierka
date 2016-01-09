@@ -4,6 +4,7 @@
 #include "HttpRequester.h"
 #include "Camera.h"
 #include <thread>
+#include "MapLoader.h"
 
 
 
@@ -140,7 +141,7 @@ void GraphicalEngine::RenderPass() {	//funkcja wykonania rysowania wszystich ele
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	Camera::ActiveCamera->setupCamera();
-	Camera::ActiveCamera->setZFar(10000);
+	Camera::ActiveCamera->setZFar(100);
 	Camera::ActiveCamera->setZNear(10);
 	Instance->worldChunk1->draw();
 	Instance->worldChunk2->draw();

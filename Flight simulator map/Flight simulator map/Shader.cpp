@@ -6,7 +6,7 @@ Shader::Shader(char* vsFileName, char* psFileName)
 	char * path1 = (char*)malloc(2048);
 	strcpy(path1, SHADERS_SUBDIR);
 	strcat(path1, vsFileName);
-	FILE* file = fopen(path1, "rb");
+	FILE* file = fopen(path1, "r");
 	char* str = strerror(errno);
 
 	if (file == NULL)
@@ -17,14 +17,14 @@ Shader::Shader(char* vsFileName, char* psFileName)
 	fseek(file, 0, SEEK_SET);
 	char * vertexShaderSource = (char*)malloc(flen + 1);
 	fread(vertexShaderSource, 1, flen, file);
-	vertexShaderSource[flen] = '\0';
+	vertexShaderSource[flen] = 0;
 	fclose(file);
 	free(path1);
 
 	char * path2 = (char*)malloc(2048);
 	strcpy(path2, SHADERS_SUBDIR);
 	strcat(path2, psFileName);
-	file = fopen(path2, "rb");
+	file = fopen(path2, "r");
 	if (file == NULL)
 		TriggerCrash("Could not found shader file");
 	fseek(file, 0, SEEK_END);
@@ -32,7 +32,7 @@ Shader::Shader(char* vsFileName, char* psFileName)
 	fseek(file, 0, SEEK_SET);
 	char * pixelShaderSource = (char*)malloc(flen + 1);
 	fread(pixelShaderSource, 1, flen, file);
-	pixelShaderSource[flen] = '\0';
+	pixelShaderSource[flen] = 0;
 	fclose(file);
 	free(path2);
 
