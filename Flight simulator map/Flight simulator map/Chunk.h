@@ -13,8 +13,8 @@ class Chunk
 
 private:
 	Chunk* parent;
-	Chunk* child[4];
-	bool childExist;
+	Chunk* children[4];
+	bool childrenExist;
 	bool isLoaded;
 	bool toRemove;
 	std::atomic<bool> isDownloaded;
@@ -41,8 +41,8 @@ public:
 	void loadChunk();
 	void downloadChunk(HttpRequester* httpRequester);
 	void draw();
-	void createChild();
-	void removeChild();
+	void createChildren();
+	void removeChildren();
 	static void loadHttpData();
 	bool isChildrenDowdloaded();
 	GLuint vertexArrayId;

@@ -82,6 +82,12 @@ void GraphicalEngine::KeyboardFunc(unsigned char key, int x, int y)
 {
 	GraphicalEngine::Instance->keyboard[key] = true;
 
+
+	if (key == 'i') {
+		std::cout << "Aktualnie w kolejce do pobrania: ";
+		std::cout << MapLoader::Instance->readTaskListCount() << "     " << std::endl;
+	}
+
 }
 
 void GraphicalEngine::KeyboardUpFunc(unsigned char key, int x, int y)
@@ -122,7 +128,6 @@ void GraphicalEngine::UpdatePass()	//wykonywanie wszystkich obliczen
 	Instance->southChunk->loadChunk();
 	Instance->northChunk->loadChunk();
 
-
 	if (Chunk::levelOfDetailCheckPresent >= Chunk::levelOfDetailCheckAccuracy - 1) {
 		Chunk::levelOfDetailCheckPresent = 0;
 		Camera::ActiveCamera->hight = Camera::ActiveCamera->newHight;
@@ -141,7 +146,7 @@ void GraphicalEngine::RenderPass() {	//funkcja wykonania rysowania wszystich ele
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	Camera::ActiveCamera->setupCamera();
-	Camera::ActiveCamera->setZFar(100);
+	Camera::ActiveCamera->setZFar(1000);
 	Camera::ActiveCamera->setZNear(10);
 	Instance->worldChunk1->draw();
 	Instance->worldChunk2->draw();

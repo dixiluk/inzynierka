@@ -14,8 +14,7 @@ ElevationData::ElevationData(Coordinate southWest, Coordinate northEast, std::st
 	this->southWest = southWest;
 	this->northEast = northEast;
 	this->heights = new float*[rows];
-	for (int row = 0; row < rows; row++)
-		this->coordinates = new Coordinate*[rows];
+	this->coordinates = new Coordinate*[rows];
 
 
 	double stepLatitude = (northEast.latitude - southWest.latitude) / (rows - 1);

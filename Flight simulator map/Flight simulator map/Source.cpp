@@ -13,7 +13,6 @@
 int main(int argc, char * argv[]){
 
 
-
 	WSADATA wsaData;
 	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
 		std::cout << "WSAStartup failed.\n";
@@ -34,19 +33,15 @@ int main(int argc, char * argv[]){
 	GraphicalEngine::Instance = new GraphicalEngine(GraphicalEngine::Resolution(1440, 900));
 	GraphicalEngine::Init(argc, argv);
 	Chunk::Shader = new ChunkShader();
-
-	MapLoader::Instance->downloadMapMode(Coordinate(0, 0), Coordinate(0.5, 0.5), 17);
-
 	float hight;
 	Coordinate cameraCordinate;
 	if (argc == 4){
 		cameraCordinate = Coordinate(PI2*(atof(argv[1]) + 90) / 360, PI2*(atof(argv[2]) + 180) / 360);
 		hight = atof(argv[3]);
 	}
-
+	else
 	if (argc == 6) {
-		
-		MapLoader::Instance->downloadMapMode(Coordinate(atof(argv[1]), atof(argv[2])), Coordinate(atof(argv[3]), atof(argv[4])), atof(argv[5]));
+		MapLoader::Instance->downloadMapMode(Coordinate(atof(argv[1]), atof(argv[2])), Coordinate(atof(argv[3]), atof(argv[4])), atoi(argv[5]));		
 		return 0;
 	}
 	else {

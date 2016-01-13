@@ -1,6 +1,6 @@
 elevationRows=20
 elevationCols=20
-downloadThread=1
+downloadThread=100
 dataServer=dev.virtualearth.net
 licenceKey=AmvBSIeUUlRjloCddNtHCJft8mzVk4CVzM7P53PGl7eYptDqJN1yj1aG7typ-8K8
 saveDataOnDrive=true

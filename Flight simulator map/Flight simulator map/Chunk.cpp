@@ -30,9 +30,9 @@ Chunk::Chunk(Coordinate southWest, Coordinate northEast, Chunk* parent)
 	this->southWest = southWest;
 	this->parent = parent;
 	for (int i = 0; i < 4; i++) {
-		this->child[i] = NULL;
+		this->children[i] = NULL;
 	}
-	this->childExist = false;
+	this->childrenExist = false;
 	this->isDownloaded.store(false);
 	this->isLoaded = false;
 	this->isNowDownloading.store(false);
@@ -63,7 +63,7 @@ void Chunk::loadLevelOfDetail()
 }
 
 
-void Chunk::createChild() {
+void Chunk::createChildren() {
 	Coordinate tmpCord = Coordinate::calculateMidle(this->southWest, this->northEast);
 	Coordinate tmpCord1 = this->northEast;
 	tmpCord1.latitude = tmpCord.latitude;
@@ -74,26 +74,25 @@ void Chunk::createChild() {
 	Coordinate tmpCord4 = this->southWest;
 	tmpCord4.longitude = tmpCord.longitude;
 
-	this->child[0] = new Chunk(this->southWest, tmpCord, this);
-	this->child[1] = new Chunk(tmpCord4, tmpCord1, this);
-	this->child[2] = new Chunk(tmpCord3, tmpCord2, this);
-	this->child[3] = new Chunk(tmpCord, this->northEast, this);
+	this->children[0] = new Chunk(this->southWest, tmpCord, this);
+	this->children[1] = new Chunk(tmpCord4, tmpCord1, this);
+	this->children[2] = new Chunk(tmpCord3, tmpCord2, this);
+	this->children[3] = new Chunk(tmpCord, this->northEast, this);
 
 
-	this->childExist = true;
-
+	this->childrenExist = true;
 }
 
 void Chunk::loadChildren() {
 
 	for (int i = 0; i < 4; i++) {
 
-		this->child[i]->isNowDownloading.store(true);
-		MapLoader::Instance->addLowPriorityTask(this->child[i]);
+		this->children[i]->isNowDownloading.store(true);
+		MapLoader::Instance->addLowPriorityTask(this->children[i]);
 	}
 }
 
-void Chunk::removeChild()
+void Chunk::removeChildren()
 {
 	if (!this->isLoaded) {
 		if (!this->isDownloaded && !this->isNowDownloading) {
@@ -103,15 +102,15 @@ void Chunk::removeChild()
 	}
 	else {
 
-		delete  this->child[0];
-		this->child[0] = nullptr;
-		delete  this->child[1];
-		this->child[1] = nullptr;
-		delete  this->child[2];
-		this->child[2] = nullptr;
-		delete  this->child[3];
-		this->child[3] = nullptr;
-		this->childExist = false;
+		delete  this->children[0];
+		this->children[0] = nullptr;
+		delete  this->children[1];
+		this->children[1] = nullptr;
+		delete  this->children[2];
+		this->children[2] = nullptr;
+		delete  this->children[3];
+		this->children[3] = nullptr;
+		this->childrenExist = false;
 	}
 
 }
@@ -202,9 +201,9 @@ void Chunk::downloadChunk(HttpRequester* httpRequester)
 
 void Chunk::loadChunk() {
 	std::atomic_thread_fence(std::memory_order_acquire);
-	if (this->childExist) {
+	if (this->childrenExist) {
 		for (int i = 0; i < 4; i++) {
-			this->child[i]->loadChunk();
+			this->children[i]->loadChunk();
 		}
 		if (this->isDownloaded.load() && !this->isLoaded) {
 			this->satelliteImage->texture = new Texture((unsigned char*)this->satelliteImage->source, this->satelliteImage->width, this->satelliteImage->height);
@@ -226,7 +225,7 @@ void Chunk::loadChunk() {
 void Chunk::draw() {
 	if (this->isChildrenLoaded()) {
 		for (int i = 0; i < 4; i++) {
-			this->child[i]->draw();
+			this->children[i]->draw();
 		}
 	}
 	else {
@@ -261,12 +260,12 @@ void Chunk::loadHttpData() {
 
 bool Chunk::isChildrenDowdloaded()
 {
-	if (!this->childExist)
+	if (!this->childrenExist)
 		return false;
 
 	for (int i = 0; i < 4; i++) {
-		if (!this->child[i]->isDownloaded) {//jezeli dziecko nie jest zaladowane			
-			if (!this->child[i]->isChildrenDowdloaded())	//jezeli dzieci dziecka nie sa zaladowane
+		if (!this->children[i]->isDownloaded) {//jezeli dziecko nie jest zaladowane			
+			if (!this->children[i]->isChildrenDowdloaded())	//jezeli dzieci dziecka nie sa zaladowane
 				return false;
 		}
 	}
@@ -275,12 +274,12 @@ bool Chunk::isChildrenDowdloaded()
 }
 bool Chunk::isChildrenLoaded()
 {
-	if (!this->childExist)
+	if (!this->childrenExist)
 		return false;
 
 	for (int i = 0; i < 4; i++) {
-		if (!this->child[i]->isLoaded) {//jezeli dziecko nie jest zaladowane			
-			if (!this->child[i]->isChildrenLoaded())	//jezeli dzieci dziecka nie sa zaladowane
+		if (!this->children[i]->isLoaded) {//jezeli dziecko nie jest zaladowane			
+			if (!this->children[i]->isChildrenLoaded())	//jezeli dzieci dziecka nie sa zaladowane
 				return false;
 		}
 	}
@@ -290,7 +289,7 @@ bool Chunk::isChildrenLoaded()
 bool Chunk::isChildrenToRemove()
 {
 	for (int i = 0; i < 4; i++) {
-		if (!this->child[i]->toRemove)
+		if (!this->children[i]->toRemove)
 			return false;
 	}
 	return true;
@@ -390,16 +389,16 @@ void Chunk::calculateAllDetails()
 {
 
 
-	if (this->childExist) {
+	if (this->childrenExist) {
 
 		if (this->isChildrenToRemove()) {
 			if (this->isChildrenDowdloaded())
-				this->removeChild();
+				this->removeChildren();
 		}
 
 		if (this->isChildrenDowdloaded())
 			for (int i = 0; i < 4; i++) {
-				this->child[i]->calculateAllDetails();
+				this->children[i]->calculateAllDetails();
 			}
 		return;
 	}
@@ -412,7 +411,7 @@ void Chunk::calculateAllDetails()
 
 	if (this->detailLevel < prefDetailLevel) {	//trzeba powiekszyc jakosc
 
-		this->createChild();
+		this->createChildren();
 		this->loadChildren();
 	}
 
@@ -516,9 +515,9 @@ void Chunk::createBeginChunks() {
 
 	if (this->detailLevel < prefDetailLevel) {	//trzeba powiekszyc jakosc
 
-		this->createChild();
+		this->createChildren();
 		for (int i = 0; i < 4; i++) {
-			this->child[i]->createBeginChunks();
+			this->children[i]->createBeginChunks();
 		}
 	}
 	if (prefDetailLevel == -1)
@@ -534,9 +533,9 @@ void Chunk::createBeginChunks() {
 }
 
 void Chunk::loadBeginChunks() {
-	if (this->childExist)
+	if (this->childrenExist)
 		for (int i = 0; i < 4; i++) {
-			this->child[i]->loadBeginChunks();
+			this->children[i]->loadBeginChunks();
 		}
 	else {
 		this->isNowDownloading.store(true);
@@ -553,27 +552,27 @@ void Chunk::downloadModecreateBeginChunks(Coordinate p1, Coordinate p2, short be
 		|| (p1.longitude < this->northEast.longitude && p1.latitude < this->northEast.latitude && p2.longitude > this->northEast.longitude && p2.latitude > this->northEast.latitude)
 		) {
 		if (this->detailLevel <= bestLevel) {
-			this->createChild();
+			this->createChildren();
 			for (int i = 0; i < 4; i++) {
-				this->child[i]->downloadModecreateBeginChunks(p1, p2, bestLevel);
+				this->children[i]->downloadModecreateBeginChunks(p1, p2, bestLevel);
 			}
 		}
 	}
 }
 
 void Chunk::downloadModeloadBeginChunks() {
-	if (this->childExist)
+	if (this->childrenExist)
 		for (int i = 0; i < 4; i++) {
-			this->child[i]->downloadModeloadBeginChunks();
+			this->children[i]->downloadModeloadBeginChunks();
 		}
 	this->isNowDownloading.store(true);
 	MapLoader::Instance->addLowPriorityTask(this);
 }
 
 void Chunk::downloadModeloadClear() {
-	if (this->childExist)
+	if (this->childrenExist)
 		for (int i = 0; i < 4; i++) {
-			this->child[i]->downloadModeloadClear();
+			this->children[i]->downloadModeloadClear();
 		}
 	while (this->isNowDownloading);	//jezeli jeszcze go pobiera to czeka
 	delete this;

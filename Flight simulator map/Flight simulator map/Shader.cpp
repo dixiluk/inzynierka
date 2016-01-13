@@ -1,6 +1,6 @@
 #include "Shader.h"
 #include "CrashReporter.h"
-
+#include <iostream>
 Shader::Shader(char* vsFileName, char* psFileName)
 {
 	char * path1 = (char*)malloc(2048);
@@ -42,10 +42,36 @@ Shader::Shader(char* vsFileName, char* psFileName)
 	// Load Shader Sources
 	glShaderSource(vertexShader, 1, (const GLchar**)&vertexShaderSource, NULL);
 	glShaderSource(pixelShader, 1, (const GLchar**)&pixelShaderSource, NULL);
-
 	// Compile The Shaders
 	glCompileShader(vertexShader);
+	GLint compileStatus;
+	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &compileStatus);
+
+	if (compileStatus != GL_TRUE) {
+		std::cout << "Shader failed to compile" << std::endl;
+		GLint infoLoglength;
+		glGetShaderiv(vertexShader, GL_INFO_LOG_LENGTH, &infoLoglength);
+		GLchar* infoLog = new GLchar[infoLoglength + 1];
+		glGetShaderInfoLog(vertexShader, infoLoglength, NULL, infoLog);
+		std::cout << infoLog << std::endl;
+		delete infoLog;
+	}
+
+
 	glCompileShader(pixelShader);
+	compileStatus;
+	glGetShaderiv(pixelShader, GL_COMPILE_STATUS, &compileStatus);
+
+	if (compileStatus != GL_TRUE) {
+		std::cout << "Shader failed to compile" << std::endl;
+		GLint infoLoglength;
+		glGetShaderiv(pixelShader, GL_INFO_LOG_LENGTH, &infoLoglength);
+		GLchar* infoLog = new GLchar[infoLoglength + 1];
+		glGetShaderInfoLog(pixelShader, infoLoglength, NULL, infoLog);
+		std::cout << infoLog << std::endl;
+		delete infoLog;
+	}
+
 
 	int len = 0;
 	char* log = (char*)malloc(1024);

@@ -20,7 +20,8 @@ namespace Flight_simulator_menu
 
         private void runButton_Click(object sender, EventArgs e)
         {
-            System.Diagnostics.Process.Start("Flight simulator map.exe", latitude1TextBox.Text + " " + longitude1TextBox.Text + " " + latitude2TextBox.Text + " " + longitude2TextBox.Text + " " + qualityTextBox.Text);
+            string parameters = latitude1TextBox.Text + " " + longitude1TextBox.Text + " " + latitude2TextBox.Text + " " + longitude2TextBox.Text + " " + qualityTextBox.Text;
+            System.Diagnostics.Process.Start("Flight simulator map.exe", parameters);
             Application.Exit();
         }
 
